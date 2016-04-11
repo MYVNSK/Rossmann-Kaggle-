@@ -2,6 +2,12 @@
 # SID: 21840115
 # KAGGLE: Airbnb
 ### Pre-processing
+install.packages("lubridate")
+install.packages("dplyr")
+library(lubridate)
+library(stringr)
+library(Hmisc)
+library(dplyr)
 
 setwd("/Users/mgjmingujo/Desktop/STAT151A/final_project/")
 
@@ -10,6 +16,7 @@ df_train <- read.csv("data/train_users_2.csv", stringsAsFactors = FALSE)
 df_test <- read.csv("data/test_users.csv", stringsAsFactors = FALSE)
 age_gender_bkts <- read.csv("./data/age_gender_bkts.csv", stringsAsFactors = FALSE)
 countries <- read.csv("./data/countries.csv", stringsAsFactors = FALSE)
+sessions <- read.csv("./data/sessions.csv", stringsAsFactors = FALSE)
 
 # add destination column in test data and fill up with "N/A"
 df_test$country_destination <- "N/A"
@@ -34,42 +41,82 @@ head(countries)
 plot(age_gender_bkts)
 
 # clean age
-age_groups <- matrix(0, nrow = 21, ncol=2)
-age_groups[,1] <- seq(0, 100, 5)
-age_groups[,2] <- seq(4, 104, 5)
-age_groups[21,2] <- 150
-age_groups <- data.frame(age_groups)
-names(age_groups) <- c("Lower", "Upper")
+age_group <- matrix(0, nrow = 21, ncol=2)
+age_group[,1] <- seq(0, 100, 5)
+age_group[,2] <- seq(4, 104, 5)
+age_group[21,2] <- 150
+age_group <- data.frame(age_group)
+names(age_group) <- c("Lower", "Upper")
 
-getCharRep <- function(ii) {
-  paste(age_groups[ii,1], "-", age_groups[ii,2], sep = "")
+getAge_Range <- function(x) {
+  paste(age_group[x,1], "-", age_group[x,2], sep = "")
 }
-age_groups$CharRep <- sapply(1:nrow(age_groups), getCharRep)
-age_groups$CharRep[21] <- "100+"
+age_group$age_range <- sapply(1:nrow(age_group), getAge_Range)
+age_group$age_range[21] <- "100+"
 
-##### Create more features using date_account_created, timestamp_first_active, date_first_booking
-dac_yearmonth = paste0(dac_year, dac_month),
-dac_yearmonthday = as.numeric(paste0(dac_year, dac_month, dac_day)),
-dac_week = as.numeric(format(date_account_created+3, "%U")),
-dac_yearmonthweek = as.numeric(paste0(dac_year, dac_month, formatC(dac_week, width=2, flag="0"))),
-tfa_year = str_sub(timestamp_first_active, 1, 4),
-tfa_month = str_sub(timestamp_first_active, 5, 6),
-tfa_day = str_sub(timestamp_first_active, 7, 8),
-tfa_yearmonth = str_sub(timestamp_first_active, 1, 6),
-tfa_yearmonthday = as.numeric(str_sub(timestamp_first_active, 1, 8)),
-tfa_date = as.Date(paste(tfa_year, tfa_month, tfa_day, sep="-")),
-tfa_week = as.numeric(format(tfa_date+3, "%U")),
-tfa_yearmonthweek = as.numeric(paste0(tfa_year, tfa_month, formatC(tfa_week, width=2, flag="0"))),
-dac_lag = as.numeric(date_account_created - tfa_date),
-dfb_dac_lag = as.numeric(date_first_booking - date_account_created),
-dfb_dac_lag_cut = as.character(cut2(dfb_dac_lag, c(0, 1))),
-dfb_dac_lag_flg = as.numeric(as.factor(ifelse(is.na(dfb_dac_lag_cut)==T, "NA", dfb_dac_lag_cut))) - 1,
-dfb_tfa_lag = as.numeric(date_first_booking - tfa_date),
-dfb_tfa_lag_cut = as.character(cut2(dfb_tfa_lag, c(0, 1))),
-dfb_tfa_lag_flg = as.numeric(as.factor(ifelse(is.na(dfb_tfa_lag_cut)==T, "NA", dfb_tfa_lag_cut))) - 1
+##### Create more features with date_account_created
+df_all$date_account_created = ymd(df_all$date_account_created)
+df_all$dac_yr = year(df_all$date_account_created)     # new feature
+df_all$dac_mth = month(df_all$date_account_created)      # new feature
+df_all$dac_day = day(df_all$date_account_created)     # new feature
+df_all$dac_yr_mth_day = as.numeric(paste0(df_all$dac_yr, df_all$dac_mth, df_all$dac_day))     # new feature
+df_all$dac_wk = as.numeric(format(df_all$date_account_created+3, "%U"))    ### add the missing 3 days to the following month, March
+df_all$date_account_created <- NULL
+
+##### Create more features with timestamp_first_active
+df_all$timestamp_first_active = as.character(df_all$timestamp_first_active)
+df_all$tfa_yr = as.numeric(str_sub(df_all$timestamp_first_active, 1, 4))     # new feature
+df_all$tfa_mth = as.numeric(str_sub(df_all$timestamp_first_active, 5, 6))     # new feature
+df_all$tfa_day = as.numeric(str_sub(df_all$timestamp_first_active, 7, 8))     # new feature
+df_all$tfa_hr = as.numeric(str_sub(df_all$timestamp_first_active, 9, 10))     # new feature
+df_all$tfa_yr_mth_day_hr = as.numeric(str_sub(df_all$timestamp_first_active, 1, 10))     # new feature
+df_all$tfa_date = as.Date(paste(df_all$tfa_yr, df_all$tfa_mth, df_all$tfa_day, sep="-"))    # new feature
+df_all$tfa_wk = as.numeric(format(df_all$tfa_date+3, "%U"))     # new feature
+df_all$timestamp_first_active <- NULL
+
+#### Add a feature of lag from account creation to first active time (difference in days)
+df_all$lag = as.numeric(df_all$date_account_created - df_all$tfa_date)
+
+##### Create more features with date_first_booking
+df_all$date_first_booking = ymd(df_all$date_first_booking)
+df_all$dfb_yr = year(df_all$date_first_booking)     # new feature
+df_all$dfb_mth = month(df_all$date_first_booking)      # new feature
+df_all$dfb_day = day(df_all$date_first_booking)     # new feature
+df_all$dfb_yr_mth_day = as.numeric(paste0(df_all$dfb_yr, df_all$dfb_mth, df_all$dfb_day))     # new feature
+df_all$dfb_tfa_lag = as.numeric(df_all$date_first_booking - df_all$tfa_date)
+
+##### Change string type features to factors (numeric)
+df_all$gender <- as.factor(df_all$gender)
+df_all$signup_method <- as.factor(df_all$signup_method)
+df_all$signup_method <- as.factor(df_all$signup_method)
+#df_all$signup_flow <- as.factor(df_all$signup_flow)
+df_all$language <- as.factor(df_all$language)
+df_all$affiliate_channel <- as.factor(df_all$affiliate_channel)
+df_all$affiliate_provider <- as.factor(df_all$affiliate_provider)
+df_all$first_affiliate_tracked <- as.factor(df_all$first_affiliate_tracked)
+df_all$signup_app <- as.factor(df_all$signup_app)
+df_all$first_device_type <- as.factor(df_all$first_device_type)
+df_all$first_browser <- as.factor(df_all$first_browser)
+
+##### Manipulate the feature "age" and add age_group range
+df_all$age[is.na(df_all$age) | df_all$age > 120] <- -1
+group_idx <- ceiling((df_all$age+1)/5)
+group_idx[group_idx > dim(age_group)[1]] <- dim(age_group)[1]
+df_all$age_grp <- NA
+df_all$age_grp[group_idx > 0] <- age_group$age_range[group_idx]
+df_all$age[df_all$age == -1] <- NA
+
+##### Join country information
+countries$language <- str_sub(countries$destination_language, 1, 2)
+df_all <- left_join(df_all, countries[c("country_destination", "language", "distance_km", 
+                                  "destination_km2", "language_levenshtein_distance")],
+                                  by = c("country_destination", "language"))
+
+#### stack categorical and numeric features???
 
 
-
-
+#### Work on seessions data
+a=table(sessions$user_id)
+all_usrs <- merge(df_all, sessions, all.x = TRUE, by.x = "id", by.y = "user_id")
 
 
