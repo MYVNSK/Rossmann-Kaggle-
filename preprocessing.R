@@ -201,6 +201,13 @@ rmspe7_reduced = compute_rmspe(predict7_reduced, validationset$Sales)  # 0.90967
 las <- lars(as.matrix(trainingset), trainingset$Sales, type="lasso")
 head(trainingset)
 
+lm_ridge = lm.ridge(formula = "Sales~DayOfWeek+Open+Promo+StateHoliday+SchoolHoliday+StoreType+Assortment+Promo2SinceWeek+Average.Sales+LogCompetitionDistance+day+month+year"
+         , data = trainingset)
+coef(lm_ridge)
+predict_ridge = predict(lm_ridge, newdata = validationset)
+rmspe7_ridge = compute_rmspe(predict_ridge, validationset$Sales)  # 0.909679
+
+
 # output_to_kaggle(predict(lm7_reduced, newdata=kaggle_test))
 
 ############################### Random Forest ###################################
