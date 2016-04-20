@@ -7,7 +7,7 @@
 \date{}
 
 %make title bold and 14 pt font (Latex default is non-bold, 16 pt)
-\title{\Large \bf Airbnb Kaggle Challenge: Predicting Rossmann Store Sales}
+\title{\Large \bf Kaggle Challenge: Predicting Rossmann Store Sales}
 
 \author{
   {\rm Mingu Jo}\\
@@ -29,12 +29,72 @@ The objective of this project is to predict 6 weeks of daily sales for 1115 Ross
 
 \section{Introduction}
 
-A paragraph of text goes here.  Lots of text.  Plenty of interesting
+(TODO: literature review) Is the literature review in the Introduction informative and organized?
 text. \\
 
 More fascinating text. Features\endnote{Remember to use endnotes, not footnotes!} galore, plethora of promises.\\
 
+\subsection{Dataset and Preprocessing}
+Training and test dataset are given by Rossmann through Kaggle. The training set is composed of two different parts: one is \~10 million observed daily sales of different stores from 2013 to 2015, and the other is supplementary information for each store. We merged the two different parts by stores to have the training set. The training set had originally 15 features, but we extended to 19. We separated out year, month of the year, and day of the month from the feature \"date\". 
+
+# TODO:add the feature explanatory table here.
+
+Also, we computed average sales for each store. In addition, we noticed the feature \"CompetitionDistance\" is highly skewed to right. For the sake of linear regression, we decided to take log transformation on the feature \"CompetitionDistance\" to make sure that the relationship between explanatory variables and dependent variable is approximately linear.
+
+# TODO:add the CompetitionDistance graph here. 
+
+Because of several missing values in the training set, we filled them based on our logic.
+- There are some stores on some date which do not have any competitors. In this case, the competitor information such as \"CompetitionDistance\" for this specific observation are missing. Therefore, we assigned some big number as 1000000 for \"CompetitionDistance\" to weaken its impact. In the similar way, we filled missing values for \"CompetitionOpenSinceYear\" and CompetitionOpenSinceMonth
+- There are some stores on some date which are not in the continuing promotion. In this case, the feature \"Promo2\" is 0, and Promo2Since\[Year/Week\] are missing. We filled them with the lowest possible value to weaken their impact. 
+
+
+\subsection{Exploratory Data Analysis}
+To check any distinctive relationships between variables, we drew a pearson correlation coefficient plot using corrplot library. There are several interesting facts we captured. 
+- \"DayOfWeek\" and \"Sales\" are negatively correlated. This implies that, as \"DayOfWeek\" approaches to Saturday and Sunday, sales would decrease because most drugstores would close on these days.
+- \"LogCompetitionDistance\" and \"Sales\" are negatively correlated. In other words, lower distance to the competitor implies slightly higher sales. We assume this could occur because stores with a close distance to the competitor are mostly located in crowded regions such as a downtown city with higher sales overall.
+
+# TODO:add the correlation plot here. 
+
+
+
 \section{Methods}
+ #####???????????
+We started off by setting a benchmark to obtain a baseline for the prediction. Then, we took 3 different approaches to outperform the benchmark and former model.  
+
+\subsection{5-fold Cross Validation} #???????????
+To generalize our predictions to limit problems of overfitting on the training set, we decided to ramdomly partition the original training observations into 5 equal sized subsamples. The training set is comprised of 4 equal sized subsamples and the rest as the validation set. For the purpose of reproducibility and comparison of the predictive powers of different models, we set the seed. Our general process would be as the following:
+1. Repeat cross-validation process 5 times with each of the 5 subsamples used exactly once as the validation set.
+2. Compute the average of 5 different validation error rate. 
+3. Predict sales on the test set using the model. 
+4. Submit on Kaggle website to get the test error rate.
+5. Compare the average validation error rate and the test error rate among differnent models.
+
+
+\subsection{Error Metric}
+As the metrics that Kaggle uses to compute test error is the root-mean-squared-percentage-error (RMSPE), we used the same metrics to compute our validation error. It's the following:
+
+# TODO:add the RMSPE equation here.
+
+where ${y_i}$ is a store's sales on a single day, ${yhat_i}$ is the prediction, and ${n}$ is the number of days. 
+
+\subsection{Benchmark}
+Our benchmark is simply the average sales of each store. This gives us the validation error rate of : and the test error rate of : 
+
+
+\subsection{Linear Regression}
+
+
+\subsubsection{Feature Selection}
+
+\subsubsection{Lasso}
+
+
+
+\subsection{Random Forest}
+
+
+
+
 
 Some embedded literal typset code might 
 look like the following :
