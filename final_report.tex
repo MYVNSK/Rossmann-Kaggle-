@@ -62,7 +62,7 @@ To check any distinctive relationships between variables, we drew a pearson corr
 We started off by setting a benchmark to obtain a baseline for the prediction. Then, we took 3 different approaches to outperform the benchmark and former model.  
 
 \subsection{5-fold Cross Validation} %j???????????
-To generalize our predictions to limit problems of overfitting on the training set, we decided to ramdomly partition the original training observations into 5 equal sized subsamples. The training set is comprised of 4 equal sized subsamples and the rest as the validation set. For the purpose of reproducibility and comparison of the predictive powers of different models, we set the seed. Our general process would be as the following:
+To generalize our predictions to limit problems of overfitting on the training set, we decided to ramdomly partition the original training observations into 5 equal sized subsamples. The training set is comprised of 4 equal sized subsamples and the rest as the validation set. For the purpose of reproducibility and comparison of the predictive powers of different models, we set the seed (with a value of 42). Our general process would be as the following:
 1. Repeat cross-validation process 5 times with each of the 5 subsamples used exactly once as the validation set.
 2. Compute the average of 5 different validation error rate. 
 3. Predict sales on the test set using the model. 
@@ -71,28 +71,35 @@ To generalize our predictions to limit problems of overfitting on the training s
 
 
 \subsection{Error Metric}
-As the metrics that Kaggle uses to compute test error is the root-mean-squared-percentage-error (RMSPE), we used the same metrics to compute our validation error. It's the following:
+As the metrics that Kaggle uses to compute test error is the Root Mean Squared Percentage Error (RMSPE), we used the same metrics to compute our validation error. It's the following:
 
-% TODO:add the RMSPE equation here.
+$RMSPE = \sqrt{\frac{1}{n} \sum {(\frac{y_i - \hat y_i}{y_i})}^2}$
 
-where ${y_i}$ is a store's sales on a single day, ${yhat_i}$ is the prediction, and ${n}$ is the number of days. 
+where ${y_i}$ is a store's sales on a single day, ${yhat_i}$ is the daily sales prediction for the store on the day, and ${n}$ is the number of (store, date) pairs in the data set. 
 
 \subsection{Benchmark}
-Our benchmark is simply the average sales of each store. This gives us the validation error rate of : and the test error rate of : 
-
+Our benchmark is simply the average sales of each store. Precisely, we predict daily sales of a store for a day by the average daily sales the store had in the training data set. This method does not account for many factors (whether the day was holiday, whether the store was running a promotion on the day, etc), so we expected its error rate to have a higher error rate than any other methods we applied. This method had a the validation error rate of TODO and the test error rate of TODO. 
 
 \subsection{Linear Regression}
+To apply linear Regression on the data, we decided to use R's $lm$ function. $lm$ is an implemention of multivariate linear regression. If we supply $Y \sim X$ as the input, $lm$ builds and returns a model that can be used to predict $Y$ using $X$. Under the hood, it basically solves the normal equation $\beta = (X^T X)^{-1} X^T Y$.
 
+We first attempted to use all features available. With all features (Holiday, ..., promo2), we obtained a validation error rate of TOD and the test error rate of TODO.
 
 \subsubsection{Feature Selection}
+Before working on feature select, we took a look at the resulting lm with R function $summary(lm)$ to get some general idea of how important each variable is. DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, Promo2SinceWeek, Average.Sales, LogCompetitionDistance, day, month, year seemed to have high t-value with p-value less than 0.05. This intuitively made sense because each variable had some ways to affect daily sales:
+\begin{enumerate}
+\item StateHoliday: On a holiday, it intuitively makes sense that more people come to shop. Indeed, the coefficient is TODO.
+\item TODO
+\end{enumerate}
+
+To remove useless features, we first applied Akaike information criterion (AIC) by applying R function $stepAIC$. However, this failed to remove any features, so decided to manually remove features with p value more than 0.05. This resulted in a linear model with a validation error rate of TODO and test error rate of TODO.
 
 \subsubsection{Lasso}
 
 
-
 \subsection{Random Forest}
-
-
+Random forest is an ensemble learning method that constructs decisions tree using training set. We can use the resulting trees (random forest) to predict the daily sales for a store on a day. To apply random forest on the data, we decided to use $h2o.randomForest$ in R. 
+TODO HYPER PARAMETERS
 
 
 
