@@ -181,6 +181,7 @@ lm7 = lm(Sales ~ . - Sales - Store - PromoInterval - CompetitionDistance, data =
 predict7 = predict(lm7, newdata = validationset)
 rmspe7 = compute_rmspe(predict7, validationset$Sales)  # 0.091003
 # kaggle result: 0.21036
+summary(lm7)
 
 ############################# Variable Selection ############################
 lm7_aic <- stepAIC(lm7, direction="both")
