@@ -25,11 +25,36 @@
 
 
 \section{Abstract}
-The objective of this project is to predict 6 weeks of daily sales for 1115 Rossmann stores located across Germany using data about stores' past daily sales, competitor, etc (the list of available data will be introduced more in depth later in this paper). The data was provided by Rossmann through Kaggle. The motivation of this project is the following: by reliably predicting daily sales, store managers can create effective staff schedules (by assigning more staffs during busy days). In order to predict daily sales, we first preprocessed the data and applied several methods (multivariate linear regression, random forest, generalized linear regression, etc). Then, we compared the methods' predictive power by computing Root Mean Square Percentage Error (RMSPE). We found that TODO:X performed the best with a RMSPE score of TODO:XXX.
+Our project attempted to apply linear regression and various machine learning techniques to a real-world problem of predicting drug store sales. Rossmann, Germany's second-largest drug store chain, has provided past sales information of 1115 Rossmann stores located across Germany. We preprocessed, feature-engineered the data, and examined 4 different statistical / machine learning analysis for forecasting sales of each store: multivariate linear regression, random forest, gradient boosting, and ____. Then, we compared the methods' predictive power by computing Root Mean Square Percentage Error (RMSPE). We found that TODO:X performed the best with a RMSPE score of TODO:XXX.
+
 
 \section{Introduction}
+The objective of this project is to predict 6 weeks of daily sales for 1115 Rossmann stores located across Germany using the data which was provided by Rossmann through Kaggle. The motivation of this project is the following: by reliably predicting daily sales, store managers may decrease operational costs, and create effective staff schedules (ex. by assigning more staffs during busy days). Also, we would like to identify which type of techniques be effective in a real-world sales prediction task. Before building any regression or machine learning models for the prediction, we attempted to define which features are significant to determine daily sales of stores. By performing exploratory data analysis, we assumed some features such as promotion and distance to its competitor affect the sales. % sounds little strange
 
 (TODO: literature review) Is the literature review in the Introduction informative and organized?
+To confirm our assumption and apply various techniques for the prediction, we first explored several similar efforts that made for sales prediction task in the past in order to set the basis of our study. 
+
+- Linear Regression: The professor at Western Illionois University suggests multiple linear regression with feature selection and multicollinearity diagnostics to be a popuplar technique in sales forecasting. This model was applied for predicting the number of subscribers that a cable station can expect, which is closely related to our task. We decided to apply this technique along with partial t-test and stepwise regression to select significant features. 
+
+- Random Forest: the random forest is a tree-based ensemble method where all trees depend on a collection of random variables. (Breiman). Breiman suggests that random forest algorithm is actually from a classification viewpoint but the approach is
+applicable to regression as well. Therefore, we consider the algorithm is also applicable to our regression task. Nils Adriansson and Ingrid Mattsson in their thesis applies the algorithm into a GDP forecast task, showing its power in time-series forecasting. (Adriansson) We assume this algorithm can outperform linear regression because Breiman states that the RF does not need to assume any distribution for variables. (Breiman)
+
+- Gradient Boosting: Random forest uses bootstrapping method for training while gradient boosting builds decision
+tree over the residuals .
+
+- KNN: (Chang, Liu, & Lai, 2008) has described a way to make
+sales prediction only based on item related feature which is
+more similar to our problem where only store related feature
+is provided. 
+
+
+the disturbances
+from the mean are periodic and can effectively capture features like seasonal sales fluctuations in weather-related
+equipment salesBy referencing the ____textbook____, 
+
+
+As long as the techniques have already been widely researched, 
+
 text. \\
 
 More fascinating text. Features\endnote{Remember to use endnotes, not footnotes!} galore, plethora of promises.\\
@@ -240,6 +265,12 @@ We've preserved some real ones in addition to the template-speak.
 After the bibliography you are DONE.
 
 \section{References Cited}
+
+Dehkordi-Vakil, Farideh. "Multiple Regression Analysis." DS-533. Illionis, Macomb. Lecture.
+
+Breiman, L., (2001a). ”Random Forests”, Machine Learning 45 (1) pp. 5-32.
+R.D. https://www.diva-portal.org/smash/get/diva2:785776/FULLTEXT01.pdf
+
 
 \section{Author Contributions}
 
