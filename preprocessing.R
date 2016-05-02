@@ -224,6 +224,8 @@ h2o.init(nthreads=-1,max_mem_size='6G')
 trainH2O<-as.h2o(trainingset)
 ## Set up variable to use all features other than those specified here
 features<-colnames(trainingset)[!(colnames(trainingset) %in% c("Sales","logSales","PromoInterval", "CompetitionDistance"))]
+
+# optimize hyperparamter max_depth using validation set
 rmspes = c()
 depths = 1:28
 for (depth in depths) {
@@ -249,13 +251,50 @@ predicted_rf = predict_rf(validationset)
 rmspe_rf = compute_rmspe(predicted_rf, validationset$Sales) # 0.020639
 rmspes = c(rmspes, rmspe_rf)
 }
-plot(depths, rmspes, main="RMSPES for Random Forest")
+# [1] 0.28053805 0.14347688 0.11141898 0.09312881 0.07808361 0.06382744 0.05300004 0.04769128
+# [9] 0.04260704 0.04003271 0.03604101 0.03357333 0.03185075 0.02987905 0.02719300 0.02629616
+# [17] 0.02597022 0.02486022 0.02333302 0.02286865 0.02230270 0.02161584 0.02115328 0.02065601
+# [25] 0.02020709 0.02005893 0.01979059 0.01968014
+plot(depths, rmspes, main="RMSPES for Random Forest Per Depth (with ntrees=100)")
+
+# optimize hyperparamter ntrees using validation set
+rmspes = c()
+ntreesParams = (1:20)*10
+for (ntreesParam in ntreesParams) {
+  ## Train a random forest using all default parameters
+  rf_model <- h2o.randomForest(x=features,
+                               y="logSales", 
+                               ntrees = ntreesParam,
+                               max_depth = 10,
+                               nbins_cats = 1115, ## allow it to fit store ID
+                               training_frame=trainH2O)
+  
+  #summary(rf_model)
+  predict_rf <- function(dataset) {
+    # Load test data into cluster from R
+    testH2O<-as.h2o(dataset)
+    # Get predictions out; predicts in H2O, as.data.frame gets them into R
+    predictions<-as.data.frame(h2o.predict(rf_model,testH2O))
+    # Return the predictions to the original scale of the Sales data
+    pred <- expm1(predictions[,1])
+    return (pred)
+  }
+  predicted_rf = predict_rf(validationset)
+  rmspe_rf = compute_rmspe(predicted_rf, validationset$Sales) # 0.020639
+  rmspes = c(rmspes, rmspe_rf)
+}
+rmspes
+# [1] 0.04380550 0.03827142 0.04033160 0.04180587 0.03938701 0.03984499 0.03992669 0.03937519
+# [9] 0.03971109 0.03973975 0.03819765 0.03963958 0.03933893 0.03886010 0.03987306 0.03928793
+# [17] 0.03907073 0.03898074 0.03906581 0.03846685
+plot(ntreesParams, rmspes, main="RMSPES for Random Forest Per ntrees (with max_depth=10")
+
 
 # Restore trainingset to how it was before
 trainingset <- subset(trainingset, select = -c(logSales))
 
 write.csv(data.frame(Id=kaggle_test$Id, Sales=predict_rf(kaggle_test)), "pred.csv", row.names=F)
-# kaggle result: 0.14411
+# kaggle result: 0.14411 (depth=30, ntrees=100)
 
 
 
