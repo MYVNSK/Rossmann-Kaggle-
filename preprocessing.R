@@ -225,12 +225,13 @@ trainH2O<-as.h2o(trainingset)
 ## Set up variable to use all features other than those specified here
 features<-colnames(trainingset)[!(colnames(trainingset) %in% c("Sales","logSales","PromoInterval", "CompetitionDistance"))]
 rmspes = c()
-for (i in 1:30) {
+depths = 1:28
+for (depth in depths) {
 ## Train a random forest using all default parameters
 rf_model <- h2o.randomForest(x=features,
                              y="logSales", 
                              ntrees = 100,
-                             max_depth = i,
+                             max_depth = depth,
                              nbins_cats = 1115, ## allow it to fit store ID
                              training_frame=trainH2O)
 
@@ -248,13 +249,7 @@ predicted_rf = predict_rf(validationset)
 rmspe_rf = compute_rmspe(predicted_rf, validationset$Sales) # 0.020639
 rmspes = c(rmspes, rmspe_rf)
 }
-rmspes
-
-#> rmspes
-#[1] 0.28053805 0.14347688 0.11141898 0.09312881 0.07808361 0.06382744 0.05300004 0.04769128
-#[9] 0.04260704 0.04003271 0.03604101 0.03357333 0.03185075 0.02987905 0.02719300 0.02629616
-#[17] 0.02597022 0.02486022 0.02333302 0.02286865 0.02230270 0.02161584 0.02115328 0.02065601
-#[25] 0.02020709 0.02005893 0.01979059
+plot(depths, rmspes, main="RMSPES for Random Forest")
 
 # Restore trainingset to how it was before
 trainingset <- subset(trainingset, select = -c(logSales))
