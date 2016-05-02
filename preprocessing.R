@@ -6,6 +6,7 @@ install.packages("data.table")
 install.packages("corrplot")
 install.packages("lubridate")
 install.packages("h2o")
+install.packages("xgboost")
 library(lubridate)
 library(data.table) 
 library(ggplot2)
@@ -13,6 +14,10 @@ library(corrplot)
 library(h2o)
 library(MASS)
 library(lars)
+library(xgboost)
+library(dplyr)
+library(csv)
+
 
 
 setwd("/Users/mgjmingujo/Desktop/STAT151A/final_project/")
@@ -28,7 +33,6 @@ df_store <- merge(df_store, sales_by_store, by=c('Store'))
 head(df_store)
 #df_train <- subset(df_train, select = -c(Sales))
 df_train <- subset(df_train, select = -c(Customers))
-head(df_test)
 
 # clean df_store
 # impute Competition Values
@@ -281,3 +285,53 @@ predictions<-as.data.frame(h2o.predict(glmHex,testHex))
 ## Return the predictions to the original scale of the Sales data
 pred <- expm1(predictions[,1])
 summary(pred)
+
+
+############################### Gradient Boosting ###################################
+require(Matrix)
+require(xgboost)
+# Exclude Sales == 0 (Or NaN produced), we care about only opened stores
+train_filter <- train %>% filter(Sales > 0, Open == 1)
+# Discard PromoInterval
+train_filter$PromoInterval <- NULL
+feature.names <- names(train_filter)[c(1,2,5:length(names(train_filter))-1)]
+tra<-train_filter[,feature.names]
+
+##
+RMPSE<- function(preds, dtrain) {
+  labels <- getinfo(dtrain, "label")
+  elab<-exp(as.numeric(labels))-1
+  epreds<-exp(as.numeric(preds))-1
+  err <- sqrt(mean((epreds/elab-1)^2))
+  return(list(metric = "RMPSE", value = err))
+}
+nrow(train)
+h <- sample(1:nrow(train_filter), 10000)
+dval<-xgb.DMatrix(data=data.matrix(tra[h,]),label=log(train_filter$Sales+1)[h])
+dtrain<-xgb.DMatrix(data=data.matrix(tra[-h,]),label=log(train_filter$Sales+1)[-h])
+watchlist<-list(val=dval,train=dtrain)
+hyperparam <- list(  objective           = "reg:linear", 
+                booster = "gbtree",
+                eta                 = 0.02, # 0.06, #0.01, # Control the learning rate
+                max_depth           = 10, # default
+                subsample           = 0.9, # subsample ratio of the training instance
+                colsample_bytree    = 0.7 # subsample ratio of columns when constructing each tree
+                
+                # alpha = 0.0001, 
+                # lambda = 1
+)
+
+clf <- xgb.train(   params              = hyperparam, 
+                    data                = dtrain, 
+                    nrounds             = 3000, #300, #280, #125, #250, # changed from 300
+                    verbose             = 0,
+                    early.stop.round    = 100,
+                    watchlist           = watchlist,
+                    maximize            = FALSE,
+                    feval=RMPSE
+)
+
+pred1 <- exp(predict(clf, data.matrix(kaggle_test[,feature.names]))) -1
+submission <- data.frame(Id=kaggle_test$Id, Sales=pred1)
+write.csv(submission, "xgb2.csv",row.names=FALSE)
+

@@ -37,27 +37,10 @@ To confirm our assumption and apply various techniques for the prediction, we fi
 - Linear Regression: The professor at Western Illionois University suggests multiple linear regression with feature selection and multicollinearity diagnostics to be a popuplar technique in sales forecasting. This model was applied for predicting the number of subscribers that a cable station can expect, which is closely related to our task. We decided to apply this technique along with partial t-test and stepwise regression to select significant features. 
 
 - Random Forest: the random forest is a tree-based ensemble method where all trees depend on a collection of random variables. (Breiman). Breiman suggests that random forest algorithm is actually from a classification viewpoint but the approach is
-applicable to regression as well. Therefore, we consider the algorithm is also applicable to our regression task. Nils Adriansson and Ingrid Mattsson in their thesis applies the algorithm into a GDP forecast task, showing its power in time-series forecasting. (Adriansson) We assume this algorithm can outperform linear regression because Breiman states that the RF does not need to assume any distribution for variables. (Breiman)
+applicable to regression as well. Therefore, we consider the algorithm is also applicable to our regression task. Nils Adriansson and Ingrid Mattsson in their thesis applies the algorithm into a GDP forecast task, showing its power in time-series forecasting (Adriansson). We assume this algorithm can outperform linear regression because Breiman states that the RF does not need to assume any distribution for variables. (Breiman)
 
-- Gradient Boosting: Random forest uses bootstrapping method for training while gradient boosting builds decision
-tree over the residuals .
+- Gradient Boosting: We also found useful article by Jay Gu on gradient boosting regression. In his article, he asserted that, for predictive analytics, the gradient boosted trees model (GBM) is one of the most effective machine learning models. As he did, we have also witnessed a good number of winning solutions for various kaggle competitions that contain boosted tree models as a crucial component. We got the basic framework from the textbook (    ). Especially, we noticed that Extreme Gradient Boosting (xgboost) is similar to gradient boosting framework but more popular and efficient. We decided to fine-tune our dataset and apply the algorithm on it for better prediction.
 
-- KNN: (Chang, Liu, & Lai, 2008) has described a way to make
-sales prediction only based on item related feature which is
-more similar to our problem where only store related feature
-is provided. 
-
-
-the disturbances
-from the mean are periodic and can effectively capture features like seasonal sales fluctuations in weather-related
-equipment salesBy referencing the ____textbook____, 
-
-
-As long as the techniques have already been widely researched, 
-
-text. \\
-
-More fascinating text. Features\endnote{Remember to use endnotes, not footnotes!} galore, plethora of promises.\\
 
 \subsection{Dataset and Preprocessing}
 Training and test dataset are given by Rossmann through Kaggle. The training set is composed of two different parts: one is \~10 million observed daily sales of different stores from 2013 to 2015, and the other is supplementary information for each store. We merged the two different parts by stores to have the training set. The training set had originally 15 features, but we extended to 19. We separated out year, month of the year, and day of the month from the feature \"date\". 
@@ -123,32 +106,63 @@ To remove useless features, we first applied Akaike information criterion (AIC) 
 
 
 \subsection{Random Forest}
-Random forest is an ensemble learning method that constructs decisions tree using training set. We can use the resulting trees (random forest) to predict the daily sales for a store on a day. To apply random forest on the data, we decided to use $h2o.randomForest$ in R. 
+Random Forest is an ensemble learning method that constructs decisions tree using training set. By aggregating many decision trees, Random Forest can make predictions while avoiding overfitting. Here is our Random Forest Regression steps: \\
+1. Construct random forest trees (number of trees is defined by hyper parameter)
+2. Classify the incoming data into the decision tree node
+3. Calculate the mean value for each node for prediction
+In particular, we used H2O’s RandomForest package to carry out the training and prediction. Then, we optimized parameters to improve on our prediction model. H2O is the open source math engine for huge dataset (_____). Since H2O package enables us to compute Random Forest Regression algorithm in parallel distribution, we decided to use the package for faster computation compared to R's Random Forest package.
+
 TODO HYPER PARAMETERS
 
 
+\subsection{Gradient Boosting}
+The similarity between Random Forest and Gradient Boosting is that both generate decision trees. However, Random forest uses bootstrapping method for training while Gradient Boosting builds decision tree over the residuals. In other words, Gradient Boosting Tree generates the decision tree as it optimizes on a proper loss function (   ). This refers that we can establish our own loss function for optimization, which we really couldn't do in Random Forest. Our decision trees here are regression trees. Each regression tree divides the data point at each non-leaf node according to a constraint on a feature. The leaf node value of a data point decides its score, and a data point is predicted by averaging the scores of the leaf node it belongs to.
 
-Some embedded literal typset code might 
-look like the following :
+In particular, we used R's xgboost package. XGBoost also known as Extreme Gradient Boosting is a powerful supervised learning algorithm (). This package enables an automatic parallel computation on a single machine. For regression, we put \"reg:linear\". Our training objective here is : 식 
 
-{\tt \small
-\begin{verbatim}
-int wrap_fact(ClientData clientData,
-              Tcl_Interp *interp,
-              int argc, char *argv[]) {
-    int result;
-    int arg0;
-    if (argc != 2) {
-        interp->result = "wrong # args";
-        return TCL_ERROR;
-    }
-    arg0 = atoi(argv[1]);
-    result = fact(arg0);
-    sprintf(interp->result,"%d",result);
-    return TCL_OK;
-}
-\end{verbatim}
-}
+
+
+
+
+\section{Results}
+
+\subsection{Random Forest}
+The two main  parameters  we  tuned for RF  is  the number  of  trees and the size  of  the random  subsets of  features  to  
+consider  when  splitting a node. We  used  5 fold cross validation  to  get RMSPE while varying these parameters. Two plots 
+are shown below.  From  these plots,  we  could see that  RMSPE doesn’t change  too much  after tree  number  reaches 30  and 
+after feature number  reaches 20.
+
+
+
+
+\subsection{Gradient Boosting}
+Unfortunately, Gradient Boosting Tree has its own drawbacks.
+First, It is more likely to overfit than random forest.
+It trusts every data point and tries to find optimal linear combination
+of trees given the train data. Second, there are more
+parameters in Gradient Boosting Tree. We have to tune the
+number of trees, maximum depth and the learning rate at the
+same time. For the first drawback, we can try to avoid over-
+fitting by using the cross validation provided by sklearn. For
+the second method, we have to spend more time to tune it,
+which is tradeoff between time and accuracy
+
+One of the major problems of all machine learning algorithms is to know when to stop, i.e., how to prevent the learning algorithm to fit esoteric aspects of the training data that are not likely to improve the predictive validity of the respective model. This issue is also known as the problem of overfitting.
+
+The gradient boosted trees model is a type of additive model that makes predictions by combining decisions from a sequence of base models. More formally we can write this class of models as:
+
+g(x)=f0(x)+f1(x)+f2(x)+...
+g(x)=f0(x)+f1(x)+f2(x)+...
+
+Random forest runtimes are quite fast, and they are able to deal with unbalanced and missing data. Random Forest weaknesses are that when used for regression they cannot predict beyond the range in the training data, and that they may over-fit data sets that are particularly noisy.
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Now we're going to cite somebody.  Watch for the cite tag.
 Here it comes~\cite{Chaum1981,Diffie1976}.  The tilde character (\~{})
@@ -279,12 +293,46 @@ Breiman, L., (2001a). ”Random Forests”, Machine Learning 45 (1) pp. 5-32.
 R.D. https://www.diva-portal.org/smash/get/diva2:785776/FULLTEXT01.pdf
 
 
+https://documents.software.dell.com/statistics/textbook/boosting-trees-regression-classification
+
+h2o package description
+
+
 \section{Author Contributions}
 
 \end{document}
 
 
 
+
+
+
+
+
+
+
+
+Some embedded literal typset code might 
+look like the following :
+
+{\tt \small
+\begin{verbatim}
+int wrap_fact(ClientData clientData,
+              Tcl_Interp *interp,
+              int argc, char *argv[]) {
+    int result;
+    int arg0;
+    if (argc != 2) {
+        interp->result = "wrong # args";
+        return TCL_ERROR;
+    }
+    arg0 = atoi(argv[1]);
+    result = fact(arg0);
+    sprintf(interp->result,"%d",result);
+    return TCL_OK;
+}
+\end{verbatim}
+}
 
 
 
