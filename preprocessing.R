@@ -16,13 +16,20 @@ library(MASS)
 library(lars)
 library(xgboost)
 library(dplyr)
+library(csv)
 
 setwd("/Users/mgjmingujo/Desktop/STAT151A/final_project/")
 
 df_kaggle_test <- read.csv("data/test.csv", stringsAsFactors = FALSE)
 df_train <- read.csv("data/train.csv", stringsAsFactors = FALSE)
 df_store <- read.csv("data/store.csv", stringsAsFactors = FALSE)
-
+length(df_kaggle_test$Store)
+length(df_train$Store)
+length(df_store$Store)
+summary(df_store)
+head(df_train)
+head(df_kaggle_test)
+head(df_train)
 # add average sales to store
 sales_by_store <- aggregate(df_train$Sales, by = list(df_train$Store), mean)
 names(sales_by_store) <- c("Store", "Average.Sales")
@@ -50,7 +57,7 @@ df_store$Promo2SinceYear[is.na(df_store$Promo2SinceYear)] <- 1990 # Dealing with
 df_store$Promo2SinceWeek[is.na(df_store$Promo2SinceWeek)] <- 1 # Dealing with NA
 df_store$Promo2 <- as.factor(df_store$Promo2)
 head(df_store)
-typeof(df_store[[6]])
+
 
 clean <- function(df_train) {
   # Merge df_store into df_train
@@ -153,60 +160,31 @@ rmspe_bench # 0.106209
 
 ############################## Linear Model ##################################
 # Fit Sales against all variables
-lm0 = lm(Sales ~ . - Sales - Store - PromoInterval - CompetitionDistance, data = trainingset)
+lm_all = lm(Sales ~ . - Sales - Store - PromoInterval, data = trainingset)
+predict_all = predict(lm_all, newdata = validationset)
+rmspe_all = compute_rmspe(predict_all, validationset$Sales)  # 0.09101
+output_to_kaggle(predict(lm_all, newdata = kaggle_test)) # kaggle result: 0.21036
+
 summary(lm0)
+################## Variable Selection-Backward Elimination #######################
+# after backward elimination
+lm_backward_elimination <- lm(formula = "Sales~DayOfWeek+Open+Promo+StateHoliday+SchoolHoliday+StoreType+Assortment+Average.Sales+LogCompetitionDistance+day+month+year"
+                  , data = trainingset)
+predict_backward_elimination = predict(lm_backward_elimination, newdata = validationset)
+rmspe_backward_elimination = compute_rmspe(predict_backward_elimination, validationset$Sales)  # 0.09108
+output_to_kaggle(predict(lm_backward_elimination, newdata = kaggle_test)) # kaggle result: 0.20988
 
-lm1 = lm(Sales ~ DayOfWeek + Promo + StateHoliday + SchoolHoliday, data = trainingset)
-predict1 = predict(lm1, newdata = validationset)
-rmspe1 = compute_rmspe(predict1, validationset$Sales)  # 0.27857
-
-lm2 = lm(Sales ~ DayOfWeek + Promo + StateHoliday + SchoolHoliday + StoreType, data = trainingset)
-predict2 = predict(lm2, newdata = validationset)
-rmspe2 = compute_rmspe(predict2, validationset$Sales)  # 0.27831
-
-lm3 = lm(Sales ~ DayOfWeek + Promo + StateHoliday + SchoolHoliday + StoreType + Assortment + Promo2, data = trainingset)
-predict3 = predict(lm3, newdata = validationset)
-rmspe3 = compute_rmspe(predict3, validationset$Sales)  # 0.26414
-
-lm4 = lm(Sales ~ DayOfWeek + Promo + StateHoliday + SchoolHoliday + StoreType + Assortment + Promo2 + day + month + year, data = trainingset)
-predict4 = predict(lm4, newdata = validationset)
-rmspe4 = compute_rmspe(predict4, validationset$Sales)  # 0.25452
-
-lm5 = lm(Sales ~ . - Average.Sales - Sales - Customers - Store - PromoInterval, data = trainingset)
-predict5 = predict(lm5, newdata = validationset)
-rmspe5 = compute_rmspe(predict5, validationset$Sales)  # 0.25257
-
-lm6 = lm(Sales ~ . - Sales - Store - PromoInterval - LogCompetitionDistance, data = trainingset)
-predict6 = predict(lm6, newdata = validationset)
-rmspe6 = compute_rmspe(predict6, validationset$Sales)  # 0.09112
-
-summary(lm7)
-lm7 = lm(Sales ~ . - Sales - Store - PromoInterval - CompetitionDistance, data = trainingset)
-predict7 = predict(lm7, newdata = validationset)
-rmspe7 = compute_rmspe(predict7, validationset$Sales)  # 0.091003
-# kaggle result: 0.21036
-summary(lm7)
-
-############################# Variable Selection ############################
-lm7_aic <- stepAIC(lm7, direction="both")
-summary(lm7_aic)
-predict7_aic = predict(lm7_aic, newdata = validationset)
-rmspe7_aic = compute_rmspe(predict7_aic, validationset$Sales)  # 0.091006
-# kaggle result: 0.21039
-
-# manual variable selection using p-value
-summary(lm7)
-lm7_reduced <- lm(formula = "Sales~DayOfWeek+Open+Promo+StateHoliday+SchoolHoliday+StoreType+Assortment+Promo2SinceWeek+Average.Sales+LogCompetitionDistance+day+month+year"
-, data = trainingset)
-predict7_reduced = predict(lm7_reduced, newdata = validationset)
-rmspe7_reduced = compute_rmspe(predict7_reduced, validationset$Sales)  # 0.909679
-# kaggle result: 0.21031
+################## Variable Selection-AIC #######################
+lm_aic <- stepAIC(lm_all, direction="both")
+predict_aic = predict(lm_aic, newdata = validationset)
+rmspe_aic = compute_rmspe(predict_aic, validationset$Sales)  # 0.091006
+output_to_kaggle(predict(lm_aic, newdata = kaggle_test)) # kaggle result: 0.21039
 
 # LASSO?
 las <- lars(as.matrix(trainingset), trainingset$Sales, type="lasso")
 head(trainingset)
 
-lm_ridge = lm.ridge(formula = "Sales~DayOfWeek+Open+Promo+StateHoliday+SchoolHoliday+StoreType+Assortment+Promo2SinceWeek+Average.Sales+LogCompetitionDistance+day+month+year"
+lm_ridge = lm.ridge(formula = "Sales ~ . - Sales - Store - PromoInterval"
          , data = trainingset)
 coef(lm_ridge)
 predict_ridge = predict(lm_ridge, newdata = validationset)
@@ -299,7 +277,7 @@ write.csv(data.frame(Id=kaggle_test$Id, Sales=predict_rf(kaggle_test)), "pred.cs
 
 
 
-############################### Random Forest ###################################
+# GLM
 trainingset$logSales <- log1p(trainingset$Sales)
 ## Use H2O's gradient boost machine 
 ## Start cluster with all available threads
@@ -338,13 +316,10 @@ require(Matrix)
 require(xgboost)
 # Exclude Sales == 0 (Or NaN produced), we care about only opened stores
 train_filter <- train %>% filter(Sales > 0, Open == 1)
-train <- train[ which(train$Open=='1'),]
-train <- train[ which(train$Sales!='0'),]
-train$CompetitionDistance <- NULL
 # Discard PromoInterval
-train$PromoInterval <- NULL
-feature.names <- names(train)[c(1,2,6:length(names(train))-1)]
-tra<-train[,feature.names]
+train_filter$PromoInterval <- NULL
+feature.names <- names(train_filter)[c(1,2,5:length(names(train_filter))-1)]
+tra<-train_filter[,feature.names]
 
 ##
 RMPSE<- function(preds, dtrain) {
@@ -354,9 +329,10 @@ RMPSE<- function(preds, dtrain) {
   err <- sqrt(mean((epreds/elab-1)^2))
   return(list(metric = "RMPSE", value = err))
 }
-h <- sample(1:nrow(train), 10000)
-dval<-xgb.DMatrix(data=data.matrix(tra[h,]),label=log(train$Sales+1)[h])
-dtrain<-xgb.DMatrix(data=data.matrix(tra[-h,]),label=log(train$Sales+1)[-h])
+nrow(train)
+h <- sample(1:nrow(train_filter), 10000)
+dval<-xgb.DMatrix(data=data.matrix(tra[h,]),label=log(train_filter$Sales+1)[h])
+dtrain<-xgb.DMatrix(data=data.matrix(tra[-h,]),label=log(train_filter$Sales+1)[-h])
 watchlist<-list(val=dval,train=dtrain)
 hyperparam <- list(  objective           = "reg:linear", 
                 booster = "gbtree",
@@ -379,7 +355,6 @@ clf <- xgb.train(   params              = hyperparam,
                     feval=RMPSE
 )
 
-head(kaggle_test)
 pred1 <- exp(predict(clf, data.matrix(kaggle_test[,feature.names]))) -1
 submission <- data.frame(Id=kaggle_test$Id, Sales=pred1)
 write.csv(submission, "xgb2.csv",row.names=FALSE)

@@ -116,45 +116,34 @@ $RMSPE = \sqrt{\frac{1}{n} \sum {(\frac{y_i - \hat y_i}{y_i})}^2}$
 where ${y_i}$ is a store's sales on a single day, ${yhat_i}$ is the daily sales prediction for the store on the day, and ${n}$ is the number of (store, date) pairs in the data set. 
 
 \subsection{Benchmark}
-Our benchmark is simply the average sales of each store. Precisely, we predict daily sales of a store for a day by the average daily sales the store had in the training data set. This method does not account for many factors (whether the day was holiday, whether the store was running a promotion on the day, etc), so we expected its error rate to have a higher error rate than any other methods we applied. This method had a the validation error rate of TODO and the test error rate of TODO. 
+Our benchmark is simply the average sales of each store. Precisely, we predict daily sales of a store for a day by the average daily sales the store had in the training data set. This method does not account for many factors (whether the day was holiday, whether the store was running a promotion on the day, etc), so we expect its error rate to have a higher error rate than any other methods we applied.
 
 \subsection{Linear Regression}
-To apply linear Regression on the data, we decided to use R's $lm$ function. $lm$ is an implemention of multivariate linear regression. If we supply $Y \sim X$ as the input, $lm$ builds and returns a model that can be used to predict $Y$ using $X$. Under the hood, it basically solves the normal equation $\beta = (X^T X)^{-1} X^T Y$.
+Linear regression is an approach for modeling the relationship between dependent variable Y (in our case, ``Sales'') and explanatory variables X. To apply linear regression on the data, we decided to use R's $lm$ function. $lm$ is an implemention of multivariate linear regression. If we supply $Y \sim X$ as the input, $lm$ builds and returns a model that can be used to predict $Y$ using $X$. Under the hood, it basically solves the normal equation $\beta = (X^T X)^{-1} X^T Y$.
 
-We first attempted to use all features available. With all features (Holiday, ..., promo2), we obtained a validation error rate of TOD and the test error rate of TODO.
+We first built linear model with all available features (DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, CompetitionOpenSinceMonth, CompetitionOpenSinceYear, Promo2, Promo2SinceYear, Average.Sales, LogCompetitionDistance, CompetitionDistance, day, month, year) using the training set. Then, we applied the linear model on validation set.
 
 \subsubsection{Feature Selection}
-Before working on feature select, we took a look at the resulting lm with R function $summary(lm)$ to get some general idea of how important each variable is. DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, Promo2SinceWeek, Average.Sales, LogCompetitionDistance, day, month, and year seemed to have high t-value with p-value less than 0.05. This intuitively made sense because each variable had some ways to affect daily sales:
-\begin{enumerate}
-\item DayOfWeek: On Sunday, 
-\item StateHoliday: On a holiday, it makes sense that more people come to shop. Indeed, the coefficient is TODO.
-\item sdfas
-\end{enumerate}
+Then, we did feature selection to reduce complexity of linear model. Before working on feature select, we took a look at the resulting lm with R function $summary(lm)$ to get some general idea of how important each variable is. All features except CompetitionDistance, CompetitionOpenSinceMonth, CompetitionOpenSinceYear, Promo2, Promo2SinceYear were significant with p-value less than 0.05.
 
-To remove useless features, we first applied Akaike information criterion (AIC) by applying R function $stepAIC$. However, this failed to remove any features, so decided to manually remove features with p value more than 0.05. This resulted in a linear model with a validation error rate of TODO and test error rate of TODO.
+\subsubsection{Feature Selection-Backward Elimination}
+For feature selection, we first applied backward elimination by repeatedly removing features with the highest p-value until no feature has p-value higher than 0.05. As the result, we obtained DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, Average.Sales, LogCompetitionDistance, day, month, year. Then, we built linear model with the selected variables using the training set and applied linear regression with the model on the validation set.
 
-\subsubsection{Lasso}
+\subsubsection{Feature Selection-Akaike Information Criterion}
+Another approach we had for feature selection was using Akaike information criterion (AIC). AIC provides a meature of relative quality of models with the equation $AIC = 2k - 2 ln(L)$ where $k$ is the number of estimated paramters in the model and $L$ is the value of likelihood function. We performed AIC by using R function $stepAIC$.
 
-\subsubsection{Ridge}
+\subsubsection{Feature Engineering-Lasso}
+
+\subsubsection{Feature Engineering-Ridge}
 
 
 \subsection{Random Forest}
-Random Forest is an ensemble learning method that constructs decisions tree using training set. By aggregating many decision trees, Random Forest can make predictions while avoiding overfitting. Here is our Random Forest Regression steps: \\
-1. Construct random forest trees (number of trees is defined by hyper parameter)
-2. Classify the incoming data into the decision tree node
-3. Calculate the mean value for each node for prediction
-In particular, we used H2O’s RandomForest package to carry out the training and prediction. Then, we optimized parameters to improve on our prediction model. H2O is the open source math engine for huge dataset (TODO). Since H2O package enables us to compute Random Forest Regression algorithm in parallel distribution, we decided to use the package for faster computation compared to R's Random Forest package.
-
-TODO HYPER PARAMETERS
-
+Random Forest is an ensemble learning method that constructs decisions tree using training set. By building a lot of trees on the training set and using the mean prediction of the individual trees, random forest method avoids overfitting. To apply random forest method on our training set, we used H20's random forest package. To find the best hyperparamters, we tried different values of hyperparamter and tested the results on validation set using for loop.
 
 \subsection{Gradient Boosting}
 The similarity between Random Forest and Gradient Boosting is that both generate decision trees. However, Random forest uses bootstrapping method for training while Gradient Boosting builds decision tree over the residuals. In other words, Gradient Boosting Tree generates the decision tree as it optimizes on a proper loss function (   ). This refers that we can establish our own loss function for optimization, while we couldn't do in Random Forest. We set our loss function to be our error metric, RMPSE. Our decision trees here are regression trees. Each regression tree divides the data point at each non-leaf node according to a constraint on a feature. The leaf node value of a data point decides its score, and a data point is predicted by averaging the scores of the leaf node it belongs to.
 
 In particular, we used R's xgboost package. XGBoost also known as Extreme Gradient Boosting is a powerful supervised learning algorithm (). This package enables an automatic parallel computation on a single machine. For our regression task, we put ``reg:linear'' as a parameter. Our training objective here is :
-
-
-
 
 \section{Results}
 
