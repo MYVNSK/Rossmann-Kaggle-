@@ -18,8 +18,6 @@ library(xgboost)
 library(dplyr)
 library(csv)
 
-
-
 setwd("/Users/mgjmingujo/Desktop/STAT151A/final_project/")
 
 df_kaggle_test <- read.csv("data/test.csv", stringsAsFactors = FALSE)
@@ -150,12 +148,15 @@ validationset <- subset(train, id %in% c(1))
 ############################### Benchmark ###################################
 # Predicting using the average sales per store
 predict_bench = validationset$Average.Sales
-rmspe_bench = compute_rmspe(predict_bench, validationset$Sales)  # 0.106209
+rmspe_bench = compute_rmspe(predict_bench, validationset$Sales) 
+rmspe_bench # 0.106209
 # kaggle result: 0.25789
 
 ############################## Linear Model ##################################
+# Fit Sales against all variables
+lm0 = lm(Sales ~ . - Sales - Store - PromoInterval - CompetitionDistance, data = trainingset)
+summary(lm0)
 
-summary(trainingset)
 lm1 = lm(Sales ~ DayOfWeek + Promo + StateHoliday + SchoolHoliday, data = trainingset)
 predict1 = predict(lm1, newdata = validationset)
 rmspe1 = compute_rmspe(predict1, validationset$Sales)  # 0.27857
