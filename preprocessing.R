@@ -16,7 +16,6 @@ library(MASS)
 library(lars)
 library(xgboost)
 library(dplyr)
-library(csv)
 
 
 
@@ -53,7 +52,7 @@ df_store$Promo2SinceYear[is.na(df_store$Promo2SinceYear)] <- 1990 # Dealing with
 df_store$Promo2SinceWeek[is.na(df_store$Promo2SinceWeek)] <- 1 # Dealing with NA
 df_store$Promo2 <- as.factor(df_store$Promo2)
 head(df_store)
-
+typeof(df_store[[6]])
 
 clean <- function(df_train) {
   # Merge df_store into df_train
@@ -299,7 +298,7 @@ write.csv(data.frame(Id=kaggle_test$Id, Sales=predict_rf(kaggle_test)), "pred.cs
 
 
 
-# GLM
+############################### Random Forest ###################################
 trainingset$logSales <- log1p(trainingset$Sales)
 ## Use H2O's gradient boost machine 
 ## Start cluster with all available threads
@@ -338,10 +337,13 @@ require(Matrix)
 require(xgboost)
 # Exclude Sales == 0 (Or NaN produced), we care about only opened stores
 train_filter <- train %>% filter(Sales > 0, Open == 1)
+train <- train[ which(train$Open=='1'),]
+train <- train[ which(train$Sales!='0'),]
+train$CompetitionDistance <- NULL
 # Discard PromoInterval
-train_filter$PromoInterval <- NULL
-feature.names <- names(train_filter)[c(1,2,5:length(names(train_filter))-1)]
-tra<-train_filter[,feature.names]
+train$PromoInterval <- NULL
+feature.names <- names(train)[c(1,2,6:length(names(train))-1)]
+tra<-train[,feature.names]
 
 ##
 RMPSE<- function(preds, dtrain) {
@@ -351,10 +353,9 @@ RMPSE<- function(preds, dtrain) {
   err <- sqrt(mean((epreds/elab-1)^2))
   return(list(metric = "RMPSE", value = err))
 }
-nrow(train)
-h <- sample(1:nrow(train_filter), 10000)
-dval<-xgb.DMatrix(data=data.matrix(tra[h,]),label=log(train_filter$Sales+1)[h])
-dtrain<-xgb.DMatrix(data=data.matrix(tra[-h,]),label=log(train_filter$Sales+1)[-h])
+h <- sample(1:nrow(train), 10000)
+dval<-xgb.DMatrix(data=data.matrix(tra[h,]),label=log(train$Sales+1)[h])
+dtrain<-xgb.DMatrix(data=data.matrix(tra[-h,]),label=log(train$Sales+1)[-h])
 watchlist<-list(val=dval,train=dtrain)
 hyperparam <- list(  objective           = "reg:linear", 
                 booster = "gbtree",
@@ -377,6 +378,7 @@ clf <- xgb.train(   params              = hyperparam,
                     feval=RMPSE
 )
 
+head(kaggle_test)
 pred1 <- exp(predict(clf, data.matrix(kaggle_test[,feature.names]))) -1
 submission <- data.frame(Id=kaggle_test$Id, Sales=pred1)
 write.csv(submission, "xgb2.csv",row.names=FALSE)

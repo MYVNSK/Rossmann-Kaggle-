@@ -116,10 +116,9 @@ TODO HYPER PARAMETERS
 
 
 \subsection{Gradient Boosting}
-The similarity between Random Forest and Gradient Boosting is that both generate decision trees. However, Random forest uses bootstrapping method for training while Gradient Boosting builds decision tree over the residuals. In other words, Gradient Boosting Tree generates the decision tree as it optimizes on a proper loss function (   ). This refers that we can establish our own loss function for optimization, which we really couldn't do in Random Forest. Our decision trees here are regression trees. Each regression tree divides the data point at each non-leaf node according to a constraint on a feature. The leaf node value of a data point decides its score, and a data point is predicted by averaging the scores of the leaf node it belongs to.
+The similarity between Random Forest and Gradient Boosting is that both generate decision trees. However, Random forest uses bootstrapping method for training while Gradient Boosting builds decision tree over the residuals. In other words, Gradient Boosting Tree generates the decision tree as it optimizes on a proper loss function (   ). This refers that we can establish our own loss function for optimization, while we couldn't do in Random Forest. We set our loss function to be our error metric, RMPSE. Our decision trees here are regression trees. Each regression tree divides the data point at each non-leaf node according to a constraint on a feature. The leaf node value of a data point decides its score, and a data point is predicted by averaging the scores of the leaf node it belongs to.
 
-In particular, we used R's xgboost package. XGBoost also known as Extreme Gradient Boosting is a powerful supervised learning algorithm (). This package enables an automatic parallel computation on a single machine. For regression, we put \"reg:linear\". Our training objective here is : 식 
-
+In particular, we used R's xgboost package. XGBoost also known as Extreme Gradient Boosting is a powerful supervised learning algorithm (). This package enables an automatic parallel computation on a single machine. For our regression task, we put \"reg:linear\" as a parameter. Our training objective here is : 식 
 
 
 
@@ -136,6 +135,28 @@ after feature number  reaches 20.
 
 
 \subsection{Gradient Boosting}
+Before comparing the results of gradient boosting with other algorithms we performed, let's explore on the results of gradient boosting itself only. As we already feature engineered our data set, we did not perform additional feature engineering on the training data for this algorithm. As we did in previous methodologies, we tried a range of specific parameters to maximize its prediction accuracy. Since the major issue of all machine learning tasks is to prevent overfitting on training data, we also use 5-fold cross validation here. We computed the average error rate as a parameter changes, and graphed them to choose the best parameter. There are actually more parameters to tune in Gradient Boosting. There are three major parameters subject to be tuned: the learning rate, maximum depth, and number of trees. In here, we decided to use the default number of trees, and tune the learning rate and the maximum depth. The effects of tuning are visualized in the following graphs:
+
+
+As the error rate shows, Gradient Boosting model gives us the most predictive power by far. We were able to achieve test error rate (RMPSE) of 0.123.
+
+- learning rate
+
+
+- maximum depth
+
+
+- Time
+
+
+Overall, we could check that compared to random forest, it is more likely to overfit. 
+
+
+you potentially increase the size of the tree and get better precision, at the risk of overfitting and longer training time.
+
+
+
+
 Unfortunately, Gradient Boosting Tree has its own drawbacks.
 First, It is more likely to overfit than random forest.
 It trusts every data point and tries to find optimal linear combination
@@ -156,6 +177,40 @@ g(x)=f0(x)+f1(x)+f2(x)+...
 
 Random forest runtimes are quite fast, and they are able to deal with unbalanced and missing data. Random Forest weaknesses are that when used for regression they cannot predict beyond the range in the training data, and that they may over-fit data sets that are particularly noisy.
 
+
+
+\section{Discussion}
+To visualize the overall performance of our different models, we organized the resulting error rates into a simple table. 
+
+% TODO: make an overall error rate table
+
+- F
+
+
+- Performance
+As shown in the table, our highest performing model was the Gradient Boosting model. This model provided us the lowest testing error rate of \"    \". The worst performing model was the linear regression model. 
+
+As we expected, linear regression model did not perfrom very well because of the non-linearity of the data. 
+
+However, we checked the sharp increase from linear regression to Random Forest model. we confirmed that tree based models can approximate functions with any \"non-linear shape\", whereas linear models can produce functions with a \"linear shape\" with respect to a chosen set of features. 
+
+
+- Time (complexity)
+As shown in the table, it took more than 5 hours to train Gradient Boosting model and compute different error rates according to different parameters over 5-fold cross validation.
+
+
+
+Random Forest is able to discover more complex dependencies at the cost of more time for fitting
+
+
+
+
+We were able to achieve 12.3% rms error using
+gradient boosting, our main algorithm, to predict
+Rossmann sales without using customer data.
+Boosting worked very well for this data set, most
+likely due to the fact that this data is extremely
+dense, which is known to be ideal for boosting.
 
 
 
