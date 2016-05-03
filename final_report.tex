@@ -27,9 +27,8 @@
 \section{Abstract}
 Our project attempted to apply linear regression and various machine learning techniques to a real-world problem of predicting drug store sales. Rossmann, Germany's second-largest drug store chain, has provided past sales information of 1115 Rossmann stores located across Germany. We preprocessed, feature-engineered the data, and examined 4 different statistical / machine learning analysis for forecasting sales of each store: multivariate linear regression, random forest, gradient boosting, and TODO. Then, we compared the methods' predictive power by computing Root Mean Square Percentage Error (RMSPE). We found that TODO:X performed the best with a RMSPE score of TODO:XXX.
 
-
 \section{Introduction}
-The objective of this project is to predict 6 weeks of daily sales for 1115 Rossmann stores located across Germany using the data which was provided by Rossmann through Kaggle. The motivation of this project is the following: by reliably predicting daily sales, store managers may decrease operational costs, and create effective staff schedules (ex. by assigning more staffs during busy days). Also, we would like to identify which type of techniques be effective in a real-world sales prediction task. Before building any regression or machine learning models for the prediction, we attempted to define which features are significant to determine daily sales of stores. By performing exploratory data analysis, we assumed some features such as promotion and distance to its competitor affect the sales. % sounds little strange
+The objective of this project is to predict 6 weeks of daily sales for 1115 Rossmann stores located across Germany using the data which was provided by Rossmann through Kaggle. The motivation of this project is the following: by reliably predicting daily sales, store managers may decrease operational costs, and create effective staff schedules (ex. by assigning more staffs during busy days). Also, we would like to identify which type of techniques be effective in a real-world sales prediction task. Before building any regression or machine learning models for the prediction, we attempted to define which features are significant to determine daily sales of stores. By performing exploratory data analysis, we found how some features such as promotion and competitor distance affect the sales. % sounds little strange
 
 (TODO: literature review) Is the literature review in the Introduction informative and organized?
 To confirm our assumption and apply various techniques for the prediction, we first explored several similar efforts that made for sales prediction task in the past in order to set the basis of our study. 
@@ -42,19 +41,50 @@ applicable to regression as well. Therefore, we consider the algorithm is also a
 - Gradient Boosting: We also found useful article by Jay Gu on gradient boosting regression. In his article, he asserted that, for predictive analytics, the gradient boosted trees model (GBM) is one of the most effective machine learning models. As he did, we have also witnessed a good number of winning solutions for various kaggle competitions that contain boosted tree models as a crucial component. We got the basic framework from the textbook (    ). Especially, we noticed that Extreme Gradient Boosting (xgboost) is similar to gradient boosting framework but more popular and efficient. We decided to fine-tune our dataset and apply the algorithm on it for better prediction.
 
 
-\subsection{Dataset and Preprocessing}
-Training and test dataset are given by Rossmann through Kaggle. The training set is composed of two different parts: one is \~10 million observed daily sales of different stores from 2013 to 2015, and the other is supplementary information for each store. We merged the two different parts by stores to have the training set. The training set had originally 15 features, but we extended to 19. We separated out year, month of the year, and day of the month from the feature \"date\". 
+\subsection{Description of Datasets}
+Data sets are given by Rossmann through Kaggle. There are three files: test.csv, train.csv, and store.csv. train.csv contains 1017209 observed daily sales of different stores from 2013 to 2015. store.csv contains supplementary information for each store (41088 lines because there are 41088 stores). train.csv and store.csv both contain Store id that we can use to join the train and store data sets. Finally, test.csv has 41088 lines of daily sales of different stores but the value of Sales column is omitted. We are expected to predict the value of Sales column for the test set (test.csv) by using the training set (train.csv) and store data (store.csv).
 
-% TODO:add the feature explanatory table here.
+The following describes fields in test.csv and training.csv:
+\begin{itemize}
+\item Store - the unique id for each store (positive integer ranging from 1 to 1115)
+\item DayOfWeek - the day of week (positive integer ranging from 1 to 7 where 1, 2, ..., 7 correspond to Monday, Tuesday, ..., Sunday)
+\item Date - the date (string of format YYYY­MM­DD)
+\item Sales - the total amount of revenue for this given day (positive number between 0 and 41551). This value is what needs to be predicted, so only exists in training.csv.
+\item Customers - the number of customers on the given day. This also only exists in training.csv.
+\item Open - an indicator of whether the store was open on the given day (0 if closed, 1 if open)
+\item Promo - an indicator of whether the store was running a promotion on the given day (0 if not running, 1 if running)
+\item StateHoliday - an indicator of whether the given day was a state holiday (0 if not a state holiday, a if public holiday, b if eastern holiday, c if christmas)
+\item SchoolHoliday - an indicator of whether the store was affected by a nearby school holiday on the given day (0 if not affected, 1 if affected)
+\end{itemize}
 
-Also, we computed average sales for each store. In addition, we noticed the feature \"CompetitionDistance\" is highly skewed to right. For the sake of linear regression, we decided to take log transformation on the feature \"CompetitionDistance\" to make sure that the relationship between explanatory variables and dependent variable is approximately linear.
+The following describes fields in store.csv:
+\begin{itemize}
+\item Store - the unique id for each store (positive integer ranging from 1 to 1115)
+\item StoreType - the store's model (4 types: a, b, c, d)
+\item CompetitionDistance - the distance in meters to the nearest competing store (positive number franging from 20.0 to 75860.0, and NA's if no competitors)
+\item Assortment - the store's assortment level (a = basic, b = extra, c = extended)
+\item CompetitionOpenSinceMonth - the approximate month of the time when the nearest competing store opened (positive integer ranging from 1 to 12, and NA's if no competitors)
+\item CompetitionOpenSinceYear - the approximate year of the time when the nearest competing store opened (positive integer ranging from 1900 to 2015, and NA's if no competitors)
+\item Promo2 - an indicator of whether the store was participating in a promotion that runs over a period of time  (0 if not participating, 1 if participating)
+\item Promo2SinceWeek - the approximate week of year when the store started to participate in promo2 (positive integer ranging from 1 to 50, and NA's if no promo2)
+\item Promo2SinceYear - the approximate year of time when the store started to participate in promo2 (positive integer ranging from 2009 to 2015, and NA's if no promo2)
+\item PromoInterval - the months when the promo2 started (comma-separated list of string months. ex. ``Feb,May,Aug,Nov'')
+\end{itemize}
+
+\subsection{Preprocessing}
+
+For preprocessing, we have done the followings:
+\begin{itemize}
+\item We merged train.csv and store.csv by ``Store'' because we can predict daily sales better with more data related to the sales. We also merged test.csv and store.csv by ``Store''.
+\item We removed ``Customers'' field from the training data because it does not exist in the test data so we cannot use ``Customers'' to predict ``Sales''.
+\item For ``CompetitionDistance'' with NA values, we replaced NA with 1000000. Since 1000000 is much more bigger than any other distances, replacing NA with the number simulated an effect of having no competitor. In the similar way, we filled missing values for ``CompetitionOpenSinceYear'' and ``CompetitionOpenSinceMonth''.
+\item Similarly, for ``Promo2SinceYear'' with NA valus, we replaced NA with 1990 to simulate the effect of having no promo2.
+\item We splitted ``Date'' field into three fields: ``year'', ``month'', and ``day''.
+\item We computed average sales for each store to create a new field ``Average.Sales''.
+\item We noticed the feature ``CompetitionDistance'' is highly skewed to right. For the sake of linear regression, we took log transformation on the feature ``CompetitionDistance'' to create a new field ``LogCompetitionDistance'' to make sure that the relationship between explanatory variables and dependent variable is approximately linear.
+\end{itemize}
 
 % TODO:add the CompetitionDistance graph here. 
-
-Because of several missing values in the training set, we filled them based on our logic.
-- There are some stores on some date which do not have any competitors. In this case, the competitor information such as \"CompetitionDistance\" for this specific observation are missing. Therefore, we assigned some big number as 1000000 for \"CompetitionDistance\" to weaken its impact. In the similar way, we filled missing values for \"CompetitionOpenSinceYear\" and CompetitionOpenSinceMonth
-- There are some stores on some date which are not in the continuing promotion. In this case, the feature \"Promo2\" is 0, and Promo2Since\[Year/Week\] are missing. We filled them with the lowest possible value to weaken their impact. 
-
 
 \subsection{Exploratory Data Analysis}
 To check any distinctive relationships between variables, we drew a pearson correlation coefficient plot using corrplot library. There are several interesting facts we captured. 
@@ -94,15 +124,18 @@ To apply linear Regression on the data, we decided to use R's $lm$ function. $lm
 We first attempted to use all features available. With all features (Holiday, ..., promo2), we obtained a validation error rate of TOD and the test error rate of TODO.
 
 \subsubsection{Feature Selection}
-Before working on feature select, we took a look at the resulting lm with R function $summary(lm)$ to get some general idea of how important each variable is. DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, Promo2SinceWeek, Average.Sales, LogCompetitionDistance, day, month, year seemed to have high t-value with p-value less than 0.05. This intuitively made sense because each variable had some ways to affect daily sales:
+Before working on feature select, we took a look at the resulting lm with R function $summary(lm)$ to get some general idea of how important each variable is. DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, Promo2SinceWeek, Average.Sales, LogCompetitionDistance, day, month, and year seemed to have high t-value with p-value less than 0.05. This intuitively made sense because each variable had some ways to affect daily sales:
 \begin{enumerate}
-\item StateHoliday: On a holiday, it intuitively makes sense that more people come to shop. Indeed, the coefficient is TODO.
-\item TODO
+\item DayOfWeek: On Sunday, 
+\item StateHoliday: On a holiday, it makes sense that more people come to shop. Indeed, the coefficient is TODO.
+\item sdfas
 \end{enumerate}
 
 To remove useless features, we first applied Akaike information criterion (AIC) by applying R function $stepAIC$. However, this failed to remove any features, so decided to manually remove features with p value more than 0.05. This resulted in a linear model with a validation error rate of TODO and test error rate of TODO.
 
 \subsubsection{Lasso}
+
+\subsubsection{Ridge}
 
 
 \subsection{Random Forest}
