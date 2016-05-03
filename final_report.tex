@@ -151,7 +151,7 @@ TODO HYPER PARAMETERS
 \subsection{Gradient Boosting}
 The similarity between Random Forest and Gradient Boosting is that both generate decision trees. However, Random forest uses bootstrapping method for training while Gradient Boosting builds decision tree over the residuals. In other words, Gradient Boosting Tree generates the decision tree as it optimizes on a proper loss function (   ). This refers that we can establish our own loss function for optimization, while we couldn't do in Random Forest. We set our loss function to be our error metric, RMPSE. Our decision trees here are regression trees. Each regression tree divides the data point at each non-leaf node according to a constraint on a feature. The leaf node value of a data point decides its score, and a data point is predicted by averaging the scores of the leaf node it belongs to.
 
-In particular, we used R's xgboost package. XGBoost also known as Extreme Gradient Boosting is a powerful supervised learning algorithm (). This package enables an automatic parallel computation on a single machine. For our regression task, we put \"reg:linear\" as a parameter. Our training objective here is : 식 
+In particular, we used R's xgboost package. XGBoost also known as Extreme Gradient Boosting is a powerful supervised learning algorithm (). This package enables an automatic parallel computation on a single machine. For our regression task, we put ``reg:linear'' as a parameter. Our training objective here is :
 
 
 
@@ -205,8 +205,8 @@ One of the major problems of all machine learning algorithms is to know when to 
 
 The gradient boosted trees model is a type of additive model that makes predictions by combining decisions from a sequence of base models. More formally we can write this class of models as:
 
-g(x)=f0(x)+f1(x)+f2(x)+...
-g(x)=f0(x)+f1(x)+f2(x)+...
+%g(x)=f0(x)+f1(x)+f2(x)+...
+%g(x)=f0(x)+f1(x)+f2(x)+...
 
 Random forest runtimes are quite fast, and they are able to deal with unbalanced and missing data. Random Forest weaknesses are that when used for regression they cannot predict beyond the range in the training data, and that they may over-fit data sets that are particularly noisy.
 
@@ -221,11 +221,11 @@ To visualize the overall performance of our different models, we organized the r
 
 
 - Performance
-As shown in the table, our highest performing model was the Gradient Boosting model. This model provided us the lowest testing error rate of \"    \". The worst performing model was the linear regression model. 
+As shown in the table, our highest performing model was the Gradient Boosting model. This model provided us the lowest testing error rate of TODO. The worst performing model was the linear regression model. 
 
 As we expected, linear regression model did not perfrom very well because of the non-linearity of the data. 
 
-However, we checked the sharp increase from linear regression to Random Forest model. we confirmed that tree based models can approximate functions with any \"non-linear shape\", whereas linear models can produce functions with a \"linear shape\" with respect to a chosen set of features. 
+However, we checked the sharp increase from linear regression to Random Forest model. we confirmed that tree based models can approximate functions with any ``non-linear shape'', whereas linear models can produce functions with a ``linear shape'' with respect to a chosen set of features. 
 
 
 - Time (complexity)
