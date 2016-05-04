@@ -138,7 +138,7 @@ Another approach we had for feature selection was using Akaike information crite
 
 
 \subsection{Random Forest}
-Random Forest is an ensemble learning method that constructs decisions tree using training set. By aggregating many decision trees, Random Forest can make predictions while avoiding overfitting. Here is our Random Forest Regression steps: \\
+Random Forest is an ensemble learning method that constructs decisions tree using training set. By aggregating many decision trees, Random Forest can make predictions while avoiding overfitting because it uses an ensemble of regression trees over different samples of the data. Here is our Random Forest Regression steps: \\
 \begin{enumerate}
 \item Construct random forest trees (number of trees is defined by hyper parameter)
 \item Classify the incoming data into the decision tree node
@@ -166,13 +166,13 @@ The major parater we tune for Random Forest is the number of trees. We used 5 fo
 
 TODO: PUT THE FUCKING PLOT
 
-As the plot illustrates, we could see that RMSPE does not change much after the number of tree reaches ____. Also, we could confirm that the test error rate does not increase even if the number of trees reaches as big as _____. This is because Random Forest tree utilizes random amount of the data for training. 
-
+As the plot illustrates, we could see that RMSPE does not change much after the number of tree reaches ____. Also, we could confirm that the test error rate does not increase even if the number of trees reaches as big as _____. This is because Random Forest tree utilizes random amount of the data for training. In the algorithm, the training set for a tree is drawn by sampling with replacement.
 
 \subsection{Gradient Boosting}
 Before comparing the results of gradient boosting with other algorithms we performed, let's explore on the results of gradient boosting itself only. Although we already feature engineered our data set, we decided to also see how our test error rate changes when we exclude stores with 0 sales. As we did in previous methodologies, we tried a range of certain parameters to maximize its prediction accuracy. Since the major issue of all machine learning tasks is to prevent overfitting on training data, we also used 5-fold cross validation to generalize. We computed the average error rates of 5-fold as a parameter changes, and graphed them to choose the best parameter. There are actually more parameters to tune in Gradient Boosting. There are three major parameters subject to be tuned: the learning rate, maximum depth, and the max number of iterations. For our task, we decided to use the default number of trees and max number of iterations, but tune the learning rate. We might check how the different number of iterations affect the performance, but we checked it did not affect much but exponentially increase the runtime. We decided to set it as 300, and try different learning rates. 
 
 
+0.17276, 0.16352
 
 The effects of tuning the learning rate are visualized in the following graph:
 

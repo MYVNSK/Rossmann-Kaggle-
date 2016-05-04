@@ -16,11 +16,8 @@ library(MASS)
 library(lars)
 library(xgboost)
 library(dplyr)
-<<<<<<< HEAD
 library(Matrix)
-=======
 library(csv)
->>>>>>> f807297661375faeab1a6aaa68689a6955d923bc
 
 setwd("/Users/mgjmingujo/Desktop/STAT151A/final_project/")
 
@@ -340,7 +337,7 @@ dtrain<-xgb.DMatrix(data=data.matrix(tra[-h,]),label=log(train_filter$Sales+1)[-
 watchlist<-list(val=dval,train=dtrain)
 
 rmspes = c()
-etas <- c(0.5, 0.3, 0.25, 0.2, 0.1, 0.08, 0.05, 0.02, 0.01, 0.005, 0.0025)
+etas <- c(0.25, 0.2, 0.1, 0.08, 0.05, 0.02, 0.018, 0.016, 0.014, 0.01)
 for (eta in etas) {
   hyperparam <- list(  objective           = "reg:linear", 
                   booster = "gbtree",
@@ -367,18 +364,11 @@ for (eta in etas) {
   submission <- data.frame(Id=kaggle_test$Id, Sales=pred1)
   write.csv(submission, paste(eta,"xgb2.csv",collapse="_"),row.names=FALSE)
 }
-etas <- c(0.5, 0.3, 0.25, 0.2, 0.1, 0.08, 0.05, 0.02, 0.01, 0.005, 0.0025, 0.001)
-
 # Kaggle submission test error rates:
-test_error_rates <-c(0.24303, 0.19093, 0.16984, 0.15452, 0.14013, 0.13548, 0.13017, 0.12804, 0.12949, 0.13801, 0.14164, 0.14905)
+# 0.14894 0.13986 0.13789 0.13687 0.13531 0.13234 0.18041 0.21930 0.23043 0.33187
+test_error_rates <-c(0.14894, 0.13986, 0.13789, 0.13687, 0.13531, 0.13234, 0.18041, 0.21930, 0.23043, 0.33187)
+plot(etas, test_error_rates, type = 'o', xlab = 'Learning rate(a)', ylab = 'Test Error Rate',xlim=rev(range(etas)), main="RMSPES for Gradient Boosting Per Learning Rates (with nrounds = 300, max_depth = 10)")
 
-plot(etas, test_error_rates, xlim=rev(range(etas)), main="RMSPES for Random Forest Per Learning Rates (with nrounds = 300, max_depth = 10)")
 
 
-<<<<<<< HEAD
-=======
-pred1 <- exp(predict(clf, data.matrix(kaggle_test[,feature.names]))) -1
-submission <- data.frame(Id=kaggle_test$Id, Sales=pred1)
-write.csv(submission, "xgb2.csv",row.names=FALSE)
->>>>>>> f807297661375faeab1a6aaa68689a6955d923bc
 
