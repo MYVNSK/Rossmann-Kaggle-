@@ -138,12 +138,24 @@ Another approach we had for feature selection was using Akaike information crite
 
 
 \subsection{Random Forest}
-Random Forest is an ensemble learning method that constructs decisions tree using training set. By building a lot of trees on the training set and using the mean prediction of the individual trees, random forest method avoids overfitting. To apply random forest method on our training set, we used H20's random forest package. To find the best hyperparamters, we tried different values of hyperparamter and tested the results on validation set using for loop.
+Random Forest is an ensemble learning method that constructs decisions tree using training set. By aggregating many decision trees, Random Forest can make predictions while avoiding overfitting. Here is our Random Forest Regression steps: \\
+\begin{enumerate}
+\item Construct random forest trees (number of trees is defined by hyper parameter)
+\item Classify the incoming data into the decision tree node
+\item Calculate the mean value for each node for prediction
+\end{enumerate}
+
+In particular, we used H2O’s RandomForest package to carry out the training and prediction. Then, we optimized parameters to improve on our prediction model. H2O is the open source math engine for huge dataset (TODO). Since H2O package enables us to compute Random Forest Regression algorithm in parallel distribution, we decided to use the package for faster computation compared to R's Random Forest package.
+
+To find the best hyperparamters, we tried different values of hyperparamter and tested the results on validation set using for loops.
 
 \subsection{Gradient Boosting}
 The similarity between Random Forest and Gradient Boosting is that both generate decision trees. However, Random forest uses bootstrapping method for training while Gradient Boosting builds decision tree over the residuals. In other words, Gradient Boosting Tree generates the decision tree as it optimizes on a proper loss function (   ). This refers that we can establish our own loss function for optimization, while we couldn't do in Random Forest. We set our loss function to be our error metric, RMPSE. Our decision trees here are regression trees. Each regression tree divides the data point at each non-leaf node according to a constraint on a feature. The leaf node value of a data point decides its score, and a data point is predicted by averaging the scores of the leaf node it belongs to.
 
 In particular, we used R's xgboost package. XGBoost also known as Extreme Gradient Boosting is a powerful supervised learning algorithm (). This package enables an automatic parallel computation on a single machine. For our regression task, we put ``reg:linear'' as a parameter. Our training objective here is :
+
+
+
 
 \section{Results}
 
