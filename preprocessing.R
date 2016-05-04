@@ -16,6 +16,7 @@ library(MASS)
 library(lars)
 library(xgboost)
 library(dplyr)
+library(Matrix)
 
 setwd("/Users/mgjmingujo/Desktop/STAT151A/final_project/")
 
@@ -334,8 +335,8 @@ summary(pred)
 
 
 ############################### Gradient Boosting ###################################
-require(Matrix)
 require(xgboost)
+
 # Exclude Sales == 0 (Or NaN produced), we care about only opened stores
 train_filter <- train %>% filter(Sales > 0, Open == 1)
 train <- train[ which(train$Open=='1'),]
@@ -346,7 +347,7 @@ train$PromoInterval <- NULL
 feature.names <- names(train)[c(1,2,6:length(names(train))-1)]
 tra<-train[,feature.names]
 
-##
+# set a custimized evaluation function
 RMPSE<- function(preds, dtrain) {
   labels <- getinfo(dtrain, "label")
   elab<-exp(as.numeric(labels))-1
@@ -358,29 +359,41 @@ h <- sample(1:nrow(train), 10000)
 dval<-xgb.DMatrix(data=data.matrix(tra[h,]),label=log(train$Sales+1)[h])
 dtrain<-xgb.DMatrix(data=data.matrix(tra[-h,]),label=log(train$Sales+1)[-h])
 watchlist<-list(val=dval,train=dtrain)
-hyperparam <- list(  objective           = "reg:linear", 
-                booster = "gbtree",
-                eta                 = 0.02, # 0.06, #0.01, # Control the learning rate
-                max_depth           = 10, # default
-                subsample           = 0.9, # subsample ratio of the training instance
-                colsample_bytree    = 0.7 # subsample ratio of columns when constructing each tree
-                
-                # alpha = 0.0001, 
-                # lambda = 1
-)
 
-clf <- xgb.train(   params              = hyperparam, 
-                    data                = dtrain, 
-                    nrounds             = 3000, #300, #280, #125, #250, # changed from 300
-                    verbose             = 0,
-                    early.stop.round    = 100,
-                    watchlist           = watchlist,
-                    maximize            = FALSE,
-                    feval=RMPSE
-)
+rmspes = c()
+etas <- c(0.5, 0.3, 0.25, 0.2, 0.1, 0.08, 0.05, 0.02, 0.01, 0.005, 0.0025)
+for (eta in etas) {
+  hyperparam <- list(  objective           = "reg:linear", 
+                  booster = "gbtree",
+                  eta                 = eta, 
+                  max_depth           = 10, # default
+                  subsample           = 0.9, # subsample ratio of the training instance
+                  colsample_bytree    = 0.7 # subsample ratio of columns when constructing each tree
+                  
+                  # alpha = 0.0001, 
+                  # lambda = 1
+  )
+  
+  clf <- xgb.train(   params              = hyperparam, 
+                      data                = dtrain, 
+                      nrounds             = 300, 
+                      verbose             = 0,
+                      early.stop.round    = 100,
+                      watchlist           = watchlist,
+                      maximize            = FALSE,
+                      feval=RMPSE
+  )
+  
+  pred1 <- exp(predict(clf, data.matrix(kaggle_test[,feature.names]))) -1
+  submission <- data.frame(Id=kaggle_test$Id, Sales=pred1)
+  write.csv(submission, paste(eta,"xgb2.csv",collapse="_"),row.names=FALSE)
+}
+etas <- c(0.5, 0.3, 0.25, 0.2, 0.1, 0.08, 0.05, 0.02, 0.01, 0.005, 0.0025, 0.001)
 
-head(kaggle_test)
-pred1 <- exp(predict(clf, data.matrix(kaggle_test[,feature.names]))) -1
-submission <- data.frame(Id=kaggle_test$Id, Sales=pred1)
-write.csv(submission, "xgb2.csv",row.names=FALSE)
+# Kaggle submission test error rates:
+test_error_rates <-c(0.24303, 0.19093, 0.16984, 0.15452, 0.14013, 0.13548, 0.13017, 0.12804, 0.12949, 0.13801, 0.14164, 0.14905)
+
+plot(etas, test_error_rates, xlim=rev(range(etas)), main="RMSPES for Random Forest Per Learning Rates (with nrounds = 300, max_depth = 10)")
+
+
 
