@@ -172,19 +172,19 @@ Our benchmark is the average sales of each store. The error rate for benchmark w
 \subsection{Linear Model}
 The error rates of our different linear models are following:
 
-TODO: TABLE
-                                    Validation error rate         Test error rate
-Full Model (all features)
-Reduced Model (Backward Elimination)
-Reduced Model (Forward-Backward Elimination)
- 
-
-For linear model with all features (full model), the error rate was 0.09101 on a validation set and 0.21036 on the test set.
-
-For linear model with backward elimination (reduced model), the error rate was 0.09108 on a validation set and 0.20988 on the test set.
-
-For linear model with AIC (reduced model), the error rate was 0.091006 on a validation set and 0.21039 on the test set.
-
+\begin{center}
+    \begin{tabular}{| l | l | l |}
+      \hline
+       & Validation Error & Test Error \\ \hline
+      Linear Regression \\
+      (Full Model) & 0.09101 & 0.21036 \\ \hline
+      Linear Regression \\
+      (Backward Elimination) & 0.09108 & 0.20988 \\ \hline
+      Linear Regression \\
+      (AIC) & 0.091006 & 0.21039 \\ \hline
+      \hline    
+    \end{tabular}
+\end{center}
 
 We also wanted to check which features were actually removed by the feature elimination methods. 
 
@@ -226,24 +226,19 @@ To visualize the overall performance of our different models, we organized the r
 \begin{center}
     \begin{tabular}{| l | l | l |}
       \hline
-      & Validation Error & Test Error \\ \hline
-    BenchMark & Min Temp & Max Temp \\ \hline
-    Linear Regression-Backward & 11C & 22C. \\ \hline
-    Linear Regression-AIC & 9C & 19C , across many northern regions. Clear spells \\ \hline
-    Random Forest & 10C & 21C  still linger for the morning.  \\ \hline
-    Gradient Boosting & 10C & 21C  still linger for the morning.  \\
-    \hline    
+       & Validation Error & Test Error \\ \hline
+      Benchmark & 0.106209 & 0.25789  \\ \hline
+      Linear Regression \\
+      (Full Model) & 0.09101 & 0.21036 \\ \hline
+      Linear Regression \\
+      (Backward Elimination) & 0.09108 & 0.20988 \\ \hline
+      Linear Regression \\
+      (AIC) & 0.091006 & 0.21039 \\ \hline
+      Random Forest & 0.020639 & 0.14411.  \\ \hline
+      Gradient Boosting & 0.01734 & 0.13234  \\ \hline
+      \hline    
     \end{tabular}
 \end{center}
-
-                    Test Error Rate    Runtime
-BenchMark
-Linear Regression
-  backward 
-  AIC
-Random Forest
-Graident Boosting
-
 
 Although we readily outperformed our benchmark, as we expected, linear regression model did not perfrom very well because of the non-linearity of the data. However, we checked the sharp increase from linear regression to Random Forest model. we confirmed that tree based models can approximate functions with any ``non-linear shape'', whereas linear models can produce functions with a ``linear shape'' with respect to a chosen set of features. 
 
