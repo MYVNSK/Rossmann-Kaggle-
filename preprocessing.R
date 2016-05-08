@@ -17,7 +17,6 @@ library(lars)
 library(xgboost)
 library(dplyr)
 library(Matrix)
-library(csv)
 
 setwd("/Users/mgjmingujo/Desktop/STAT151A/final_project/")
 
@@ -105,11 +104,7 @@ head(kaggle_test)
 #corrplot(M, method="number")
 #ggplot(train, aes(x = log(Customers), y = log(Sales))) + 
 #  geom_point(alpha = 0.2, col = "blue") + geom_smooth(col = "red")
-## -> Sales is as expected strongly correlated with the number of customers. 
-
-#ggplot(train, aes(x = factor(Promo), y = Customers)) + 
-#  geom_jitter(alpha = 0.1, color = "gray") +
-#  geom_boxplot(color = "red", outlier.colour = NA, fill = NA)
+# -> Sales is as expected strongly correlated with the number of customers. 
 
 ## -> It looks like the Boxplots of customers overlap a little more than the boxplots 
 ## of sales. This would mean that the promos are not mainly attracting more 
@@ -277,98 +272,51 @@ write.csv(data.frame(Id=kaggle_test$Id, Sales=predict_rf(kaggle_test)), "pred.cs
 
 
 
-
-# GLM
-trainingset$logSales <- log1p(trainingset$Sales)
-## Use H2O's gradient boost machine 
-## Start cluster with all available threads
-h2o.init(nthreads=-1,max_mem_size='6G')
-## Load data into cluster from R
-trainH2O<-as.h2o(trainingset)
-## Set up variable to use all features other than those specified here
-features<-colnames(trainingset)[!(colnames(trainingset) %in% c("Sales","logSales","PromoInterval", "CompetitionDistance"))]
-
-## Train a generalized linear model using all default parameters
-glmHex <- h2o.gbm(x=features,
-                  y="logSales",
-                  training_frame=trainH2O,
-                  family="gaussian",
-                  nfolds = 0,
-                  alpha = 0.5,   # 1 = lasso penalty, 0 = ridge penalty
-                  lambda_search = FALSE,
-                  use_all_factor_levels = FALSE,
-                  higher_accuracy = FALSE,
-                  return_all_lambda = FALSE
-)
-trainingset <- subset(trainingset, select = -c(logSales))
-
-summary(glmHex)
-## Load test data into cluster from R
-testHex<-as.h2o(test)
-## Get predictions out; predicts in H2O, as.data.frame gets them into R
-predictions<-as.data.frame(h2o.predict(glmHex,testHex))
-## Return the predictions to the original scale of the Sales data
-pred <- expm1(predictions[,1])
-summary(pred)
-
-
 ############################### Gradient Boosting ###################################
 require(xgboost)
 
 # Exclude Sales == 0 (Or NaN produced), we care about only opened stores
-train_filter <- train %>% filter(Sales > 0, Open == 1)
+train_filter <- trainingset %>% filter(Sales > 0, Open == 1)
 # Discard PromoInterval
 train_filter$PromoInterval <- NULL
-feature.names <- names(train_filter)[c(1,2,5:length(names(train_filter))-1)]
-tra<-train_filter[,feature.names]
+train_filter_feature <- train_filter[,names(train_filter)[c(1,2,5:length(names(train_filter))-1)]]
 
 # set a custimized evaluation function
 RMPSE<- function(preds, dtrain) {
-  labels <- getinfo(dtrain, "label")
-  elab<-exp(as.numeric(labels))-1
-  epreds<-exp(as.numeric(preds))-1
-  err <- sqrt(mean((epreds/elab-1)^2))
-  return(list(metric = "RMPSE", value = err))
+  labels <- exp(as.numeric(getinfo(dtrain, "label")))-1
+  error <- sqrt(mean((exp(as.numeric(preds))-1/labels-1)^2))
+  return(list(metric = "RMPSE", value = error))
 }
-nrow(train)
-h <- sample(1:nrow(train_filter), 10000)
-dval<-xgb.DMatrix(data=data.matrix(tra[h,]),label=log(train_filter$Sales+1)[h])
-dtrain<-xgb.DMatrix(data=data.matrix(tra[-h,]),label=log(train_filter$Sales+1)[-h])
-watchlist<-list(val=dval,train=dtrain)
 
-rmspes = c()
+sample_rows <- sample(1:nrow(train_filter), 10000)
+dmat_vector<-xgb.DMatrix(data=data.matrix(train_filter_feature[sample_rows,]),label=log(train_filter$Sales+1)[sample_rows])
+dtrain<-xgb.DMatrix(data=data.matrix(train_filter_feature[-sample_rows,]),label=log(train_filter$Sales+1)[-sample_rows])
+watchlist<-list(val=dmat_vector,train=dtrain)
+
+rmspes_gb <- c()
 etas <- c(0.25, 0.2, 0.1, 0.08, 0.05, 0.02, 0.018, 0.016, 0.014, 0.01)
 for (eta in etas) {
-  hyperparam <- list(  objective           = "reg:linear", 
-                  booster = "gbtree",
-                  eta                 = eta, 
-                  max_depth           = 10, # default
-                  subsample           = 0.9, # subsample ratio of the training instance
-                  colsample_bytree    = 0.7 # subsample ratio of columns when constructing each tree
-                  
-                  # alpha = 0.0001, 
-                  # lambda = 1
-  )
-  
-  clf <- xgb.train(   params              = hyperparam, 
-                      data                = dtrain, 
-                      nrounds             = 300, 
-                      verbose             = 0,
-                      early.stop.round    = 100,
-                      watchlist           = watchlist,
-                      maximize            = FALSE,
-                      feval=RMPSE
-  )
-  
-  pred1 <- exp(predict(clf, data.matrix(kaggle_test[,feature.names]))) -1
-  submission <- data.frame(Id=kaggle_test$Id, Sales=pred1)
-  write.csv(submission, paste(eta,"xgb2.csv",collapse="_"),row.names=FALSE)
+  hyperparam <- list(objective="reg:linear", booster = "gbtree", eta = eta, max_depth = 10, # default
+                      subsample = 0.9, # subsample ratio of the training instance
+                  colsample_bytree = 0.7 # subsample ratio of columns when constructing each tree
+                )
+  clf <- xgb.train(params = hyperparam, data = dtrain, nrounds = 300, verbose = 0, early.stop.round = 100,
+                      watchlist = watchlist, maximize = FALSE, feval=RMPSE
+                  )
+  predictions <- exp(predict(clf, data.matrix(validationset[,feature.names]))) -1
+  rmspe_gb <- compute_rmspe(predictions, validationset$Sales)
+  rmspes_gb <- c(rmspes_gb, rmspe_gb)
 }
-# Kaggle submission test error rates:
-# 0.14894 0.13986 0.13789 0.13687 0.13531 0.13234 0.18041 0.21930 0.23043 0.33187
-test_error_rates <-c(0.14894, 0.13986, 0.13789, 0.13687, 0.13531, 0.13234, 0.18041, 0.21930, 0.23043, 0.33187)
-plot(etas, test_error_rates, type = 'o', xlab = 'Learning rate(a)', ylab = 'Test Error Rate',xlim=rev(range(etas)), main="RMSPES for Gradient Boosting Per Learning Rates (with nrounds = 300, max_depth = 10)")
+#val_error_rates <-c(0.14894, 0.13986, 0.13789, 0.13687, 0.13531, 0.13234, 0.18041, 0.21930, 0.23043, 0.33187)
+#val_error_rates <- test_error_rates - 0.1
+plot(etas, rmspes_gb, type = 'o', xlab = 'Learning rate(a)', ylab = 'Validation Error Rate',xlim=rev(range(etas)), main="RMSPES for Gradient Boosting Per Learning Rates (with nrounds = 300, max_depth = 10)")
 
+# learning rate = 0.02
+submission <- data.frame(Id=validationset$Id, Sales=predictions)
+write.csv(submission, paste(eta,"xgb2.csv",collapse="_"),row.names=FALSE)
+# output_to_kaggle(predict(lm7_reduced, newdata=kaggle_test))
+
+# kaggle result: 0.13234 (depth=10, nrounds=300)
 
 
 
