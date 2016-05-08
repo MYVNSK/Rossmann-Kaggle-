@@ -30,7 +30,6 @@ Our project attempted to apply linear regression and various machine learning te
 \section{Introduction}
 The objective of this project is to predict 6 weeks of daily sales for 1115 Rossmann stores located across Germany using the data which was provided by Rossmann through Kaggle. The motivation of this project is the following: by reliably predicting daily sales, store managers may decrease operational costs, and create effective staff schedules (ex. by assigning more staffs during busy days). Also, we would like to identify which type of techniques be effective in a real-world sales prediction task. Before building any regression or machine learning models for the prediction, we attempted to define which features are significant to determine daily sales of stores. By performing exploratory data analysis, we found how some features such as promotion and competitor distance affect the sales. % sounds little strange
 
-(TODO: literature review) Is the literature review in the Introduction informative and organized?
 To confirm our assumption and apply various techniques for the prediction, we first explored several similar efforts that made for sales prediction task in the past in order to set the basis of our study. 
 
 - Linear Regression: The professor at Western Illionois University suggests multiple linear regression with feature selection and multicollinearity diagnostics to be a popuplar technique in sales forecasting. This model was applied for predicting the number of subscribers that a cable station can expect, which is closely related to our task. We decided to apply this technique along with partial t-test and stepwise regression to select significant features. 
@@ -96,10 +95,9 @@ To check any distinctive relationships between variables, we drew a pearson corr
 
 
 \section{Methods}
-% #####???????????
 We started off by setting a benchmark to obtain a baseline for the prediction. Then, we took 3 different approaches to outperform the benchmark and former model.  
 
-\subsection{5-fold Cross Validation} %j???????????
+\subsection{5-fold Cross Validation}
 To generalize our predictions to limit problems of overfitting on the training set, we decided to ramdomly partition the original training observations into 5 equal sized subsamples. The training set is comprised of 4 equal sized subsamples and the rest as the validation set. For the purpose of reproducibility and comparison of the predictive powers of different models, we set the seed (with a value of 42). Our general process would be as the following:
 1. Repeat cross-validation process 5 times with each of the 5 subsamples used exactly once as the validation set.
 2. Compute the average of 5 different validation error rate. 
@@ -154,20 +152,33 @@ The similarity between Random Forest and Gradient Boosting is that both generate
 
 In particular, we used R's xgboost package. XGBoost also known as Extreme Gradient Boosting is a powerful supervised learning algorithm (). This package enables an automatic parallel computation on a single machine. For our regression task, we put ``reg:linear'' as a parameter. Our training objective here is :
 
-
-
+at most d times, since we might have to try up to d values for Xj before finding a solution
 
 \section{Results}
 \subsection{Benchmark}
-The error rate for benchmark was 0.106209 on validation set and 0.25789 on test set.
+Our benchmark is the average sales of each store. The error rate for benchmark was 0.106209 on validation set and 0.25789 on the test set (when submitted to Kaggle website). This is our baseline model. Our goal is to improve our prediction by outperforming the benchmark by large degree at the end. 
 
 \subsection{Linear Model}
+The error rates of our different linear models are following:
 
-For linear model with all features (full model), the error rate was 0.09101 on validation set and 0.21036 on test set.
+TODO: TABLE
+                                    Validation error rate         Test error rate
+Full Model (all features)
+Reduced Model (Backward Elimination)
+Reduced Model (Forward-Backward Elimination)
+ 
 
-For linear model with backward elimination (reduced model), the error rate was 0.09108 on validation set and 0.20988 on test set.
+For linear model with all features (full model), the error rate was 0.09101 on a validation set and 0.21036 on the test set.
 
-For linear model with AIC (reduced model), the error rate was 0.091006 on validation set and 0.21039 on test set.
+For linear model with backward elimination (reduced model), the error rate was 0.09108 on a validation set and 0.20988 on the test set.
+
+For linear model with AIC (reduced model), the error rate was 0.091006 on a validation set and 0.21039 on the test set.
+
+
+We also wanted to check which features were actually removed by the feature elimination methods. 
+
+TODO blah blahblahblah features blachblashblash 
+
 
 \subsection{Random Forest}
 The major parater we tune for Random Forest is the depth and number of trees. We used 5 fold cross validation to compute average RMSPE while varying the depth and number of trees. The plot for varying depth is shown below:
@@ -187,15 +198,12 @@ As the plot illustrates, we could see that RMSPE does not change much after the 
 Hence, we chose 30 as depth, 100 as ntrees to run random forest. The error rate for random forest (depth=30, ntrees=100) was 0.020639 for validation set and 0.14411 on test set.
 
 \subsection{Gradient Boosting}
-Before comparing the results of gradient boosting with other algorithms we performed, let's explore on the results of gradient boosting itself only. Although we already feature engineered our data set, we decided to also see how our test error rate changes when we exclude stores with 0 sales. As we did in previous methodologies, we tried a range of certain parameters to maximize its prediction accuracy. Since the major issue of all machine learning tasks is to prevent overfitting on training data, we also used 5-fold cross validation to generalize. We computed the average error rates of 5-fold as a parameter changes, and graphed them to choose the best parameter. There are actually more parameters to tune in Gradient Boosting. There are three major parameters subject to be tuned: the learning rate, maximum depth, and the max number of iterations. For our task, we decided to use the default number of trees and max number of iterations, but tune the learning rate. We might check how the different number of iterations affect the performance, but we checked it did not affect much but exponentially increase the runtime. We decided to set it as 300, and try different learning rates. 
+Before comparing the results of gradient boosting with other algorithms we performed, let's explore on the results of gradient boosting itself only. Although we already feature engineered our data set, we decided to also see how our test error rate changes when we exclude stores with 0 sales. As we did in previous methodologies, we tried a range of certain parameters to maximize its prediction accuracy. Since the major issue of all machine learning tasks is to prevent overfitting on training data, we also used 5-fold cross validation to generalize. We computed the average error rates of 5-fold as a parameter changes, and graphed them to choose the best parameter. There are actually more parameters to tune in Gradient Boosting. There are three major parameters subject to be tuned: the step size of each boosting step (learning rate), maximum depth, and the max number of iterations. For our task, we decided to use the default number of trees and max number of iterations, but tune the step size. We might check how the different number of iterations affect the performance, but we checked it did not affect much but exponentially increase the runtime. We decided to set it as 300, and try different step sizes. 
+
+The effects of tuning the step size are visualized in the following graph:
 
 
-0.17276, 0.16352
-
-The effects of tuning the learning rate are visualized in the following graph:
-
-
-As the error rate shows, Gradient Boosting model gives us the most predictive power by far. We were able to achieve test error rate (RMPSE) of 0.123.
+As the error rate shows, Gradient Boosting model gives us the most predictive power by far. We were able to achieve test error rate (RMPSE) of 0.13234.
 
 
 
@@ -206,15 +214,15 @@ To visualize the overall performance of our different models, we organized the r
                     Test Error Rate    Runtime
 BenchMark
 Linear Regression
-  backward
+  backward 
   AIC
 Random Forest
 Graident Boosting
 
-TODO: Linear Regression and Feature Selection 
 
+Although we readily outperformed our benchmark, as we expected, linear regression model did not perfrom very well because of the non-linearity of the data. However, we checked the sharp increase from linear regression to Random Forest model. we confirmed that tree based models can approximate functions with any ``non-linear shape'', whereas linear models can produce functions with a ``linear shape'' with respect to a chosen set of features. 
 
-As we expected, linear regression model did not perfrom very well because of the non-linearity of the data. However, we checked the sharp increase from linear regression to Random Forest model. we confirmed that tree based models can approximate functions with any ``non-linear shape'', whereas linear models can produce functions with a ``linear shape'' with respect to a chosen set of features. 
+There were TODO features removed by feature selection method. We think TODO 
 
 As a result, we were able to achieve TODO RMPSE using gradient boosting to predict Rossmann drugstore sales without using customer number information. Although boosting performed very well for this dataset, we witnessed it's harder to tune parameters and took longer time to train the data compared to Random Forest. While the number of tree is only usually tuned to train Random Forest, Gradient Boosting model requires several parameters to be tuned. In addition, tuning such parameters and comparing corresponding performances requires much more time than computing Random Forest algorithm. Also, Random Forest does not easily overfit. Often, many statisticans say Random Forests does not overfit. The testing performance of Random Forests does not decrease (due to overfitting) as the number of trees increases (Breiman). However, Boosting algorithm is more robust to overfitting because it relies on every single data point and tries to find optimal linear combination of regression trees given the train dataset. Thus, it requires proper tuning to avoid it. As shown in the table, it took more than 5 hours to train Gradient Boosting model, and compute different error rates according to different parameters over 5-fold cross validation. We could have potentially increased the size of the number of tree and get better precision, at the risk of overfitting and longer training time which is a tradeoff between time and accuracy.
 
