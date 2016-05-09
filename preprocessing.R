@@ -271,19 +271,20 @@ for (ntreesParam in ntreesParams) {
     return (pred)
   }
   predicted_rf = predict_rf(validationset)
-  rmspe_rf = compute_rmspe(predicted_rf, validationset$Sales) # 0.020639
+  rmspe_rf = compute_rmspe(predicted_rf, validationset$Sales)
   rmspes = c(rmspes, rmspe_rf)
 }
 rmspes
 # [1] 0.04380550 0.03827142 0.04033160 0.04180587 0.03938701 0.03984499 0.03992669 0.03937519
 # [9] 0.03971109 0.03973975 0.03819765 0.03963958 0.03933893 0.03886010 0.03987306 0.03928793
 # [17] 0.03907073 0.03898074 0.03906581 0.03846685
-plot(ntreesParams, rmspes, main="RMSPES for Random Forest Per ntrees (with max_depth=10")
+plot(ntreesParams, rmspes, main="RMSPES for Random Forest Per ntrees\n(with max_depth=10)", cex.lab=2, cex.axis=2, cex.main=2, cex.sub=2)
 
 
 # Restore trainingset to how it was before
 trainingset <- subset(trainingset, select = -c(logSales))
 
+# validation error: 0.020639 (depth=30, ntrees=100)
 write.csv(data.frame(Id=kaggle_test$Id, Sales=predict_rf(kaggle_test)), "pred.csv", row.names=F)
 # kaggle result: 0.14411 (depth=30, ntrees=100)
 
