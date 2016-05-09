@@ -200,6 +200,8 @@ The error rates of our different linear models on validation and test sets are t
     \end{tabular}
 \end{center}
 
+Through variance selection, the following features CompetitionDistance, CompetitionOpenSinceMonth, CompetitionOpenSinceYear, Promo2, Promo2SinceYear were insignificant so were removed.
+
 \subsection{Random Forest}
 The major parater we tune for Random Forest is the depth and number of trees. We used 5 fold cross validation to compute average RMSPE while varying the depth and number of trees. The plot for varying depth is shown below:
 
