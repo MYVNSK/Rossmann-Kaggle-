@@ -49,24 +49,24 @@ applicable to regression as well. Therefore, we consider the algorithm is also a
 
 
 \subsection{Description of Datasets}
-Data sets are given by Rossmann through Kaggle. There are three files: test.csv, train.csv, and store.csv. train.csv contains 1017209 observed daily sales of different stores from 2013 to 2015. store.csv contains supplementary information for each store (41088 lines because there are 41088 stores). train.csv and store.csv both contain Store id that we can use to join the train and store data sets. Finally, test.csv has 41088 lines of daily sales of different stores but the value of Sales column is omitted. We are expected to predict the value of Sales column for the test set (test.csv) by using the training set (train.csv) and store data (store.csv).
+Data sets are given by Rossmann through Kaggle. There are three files: ``test.csv'', ``train.csv'', and ``store.csv''. ``train.csv'' contains 1017209 observed daily sales of different stores from 2013 to 2015. ``store.csv'' contains supplementary information for each store (41088 lines because there are 41088 stores). ``train.csv'' and ``store.csv'' both contain Store id that we can use to join the train and store data sets. Finally, ``test.csv'' has 41088 lines of daily sales of different stores but the value of Sales column is omitted. We are expected to predict the value of Sales column for the test set (``test.csv'') by using the training set (``train.csv'') and store data (``store.csv'').
 
-The following table describes fields in test.csv and training.csv:
+The following table describes fields in ``test.csv'' and ``training.csv'':
 
 \begin{tabular}{| c | L{4cm} |}
   \hline
   Store & the unique id for each store (positive integer ranging from 1 to 1115) \\ \hline
   DayOfWeek & the day of week (positive integer ranging from 1 to 7 where 1, 2, ..., 7 correspond to Monday, Tuesday, ..., Sunday) \\ \hline
   Date & the date (string of format YYYY¬≠MM¬≠DD) \\ \hline
-  Sales & the total amount of revenue for this given day (positive number between 0 and 41551). This value is what needs to be predicted, so only exists in training.csv. \\ \hline
-  Customers & the number of customers on the given day. This also only exists in training.csv. \\ \hline
+  Sales & the total amount of revenue for this given day (positive number between 0 and 41551). This value is what needs to be predicted, so only exists in ``training.csv''. \\ \hline
+  Customers & the number of customers on the given day. This also only exists in ``training.csv''. \\ \hline
   Open & an indicator of whether the store was open on the given day (0 if closed, 1 if open) \\ \hline
   Promo & an indicator of whether the store was running a promotion on the given day (0 if not running, 1 if running) \\ \hline
   StateHoliday & an indicator of whether the given day was a state holiday (0 if not a state holiday, a if public holiday, b if eastern holiday, c if christmas) \\ \hline
   SchoolHoliday & an indicator of whether the store was affected by a nearby school holiday on the given day (0 if not affected, 1 if affected) \\ \hline
 \end{tabular}
 
-The following table describes fields in store.csv:
+The following table describes fields in ``store.csv'':
 
 \begin{tabular}{| c | L{3.5cm} |}
   \hline
@@ -86,7 +86,7 @@ We first worked on preprocessing the raw data given by Rossmann.
 
 For preprocessing, we have done the followings using our R codes in ``Section A: Pre-processing'' of the supplementary file ``final-project.R''.
 
-We first merged train.csv and store.csv by ``Store'' because we can predict daily sales better with more data related to the sales. We also merged test.csv and store.csv by ``Store''. \\
+We first merged ``train.csv'' and ``store.csv'' by ``Store'' because we can predict daily sales better with more data related to the sales. We also merged ``test.csv'' and ``store.csv'' by ``Store''. \\
 Then, We removed ``Customers'' field from the training data because it does not exist in the test data so we cannot use ``Customers'' to predict ``Sales''. \\
 For ``CompetitionDistance'' with NA values, we replaced NA with 1000000. Since 1000000 is much more bigger than any other distances, replacing NA with the number simulated an effect of having no competitor. In the similar way, we filled missing values for ``CompetitionOpenSinceYear'' and ``CompetitionOpenSinceMonth''. \\
 Similarly, for ``Promo2SinceYear'' with NA valus, we replaced NA with 1990 to simulate the effect of having no promo2. \\
@@ -176,6 +176,13 @@ Our R codes for gradient boosting are in ``Section I: Gradient Boosting'' of the
 
 
 \section{Supplementary Methods}
+For anyone who would like to reproduce results in this paper, we provided datasets and R codes we used in tar file ``supplementary-methods.tar.gz''.
+
+To untar this tar file, please run the following command: ``tar xvfz somefilename.tar.gz''.
+
+This tar file should contain ``final-project.R'', ``data/store.csv'', ``data/test.csv'', and ``data/train.csv''.
+
+``final-project.R'' contains all R codes used in this project, and it is referenced many time in ``Methods'' section of this paper. All files under folder ``data/'' are described in ``Description of Datasets'' subsection in ``Introduction'' section of this paper.
 
 \section{Results}
 \subsection{Benchmark}
