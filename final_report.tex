@@ -139,11 +139,6 @@ For feature selection, we first applied backward elimination by repeatedly remov
 \subsubsection{Feature Selection-Akaike Information Criterion}
 Another approach we had for feature selection was using Akaike information criterion (AIC). AIC provides a meature of relative quality of models with the equation $AIC = 2k - 2 ln(L)$ where $k$ is the number of estimated paramters in the model and $L$ is the value of likelihood function. We performed AIC by using R function $stepAIC$.
 
-\subsubsection{Feature Engineering-Lasso}
-
-\subsubsection{Feature Engineering-Ridge}
-
-
 \subsection{Random Forest}
 Random Forest is an ensemble learning method that constructs decisions tree using training set. By aggregating many decision trees, Random Forest can make predictions while avoiding overfitting because it uses an ensemble of regression trees over different samples of the data. Here is our Random Forest Regression steps: \\
 \begin{enumerate}
