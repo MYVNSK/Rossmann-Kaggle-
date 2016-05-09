@@ -52,7 +52,7 @@ Data sets are given by Rossmann through Kaggle. There are three files: ``test.cs
 \newpage
 The following table describes fields in ``test.csv'' and ``training.csv'':
 
-\begin{tabular}{| c | L{4cm} |}
+\begin{tabular}{| c | L{5cm} |}
   \hline
   Store & the unique id for each store (positive integer ranging from 1 to 1115) \\ \hline
   DayOfWeek & the day of week (positive integer ranging from 1 to 7 where 1, 2, ..., 7 correspond to Monday, Tuesday, ..., Sunday) \\ \hline
@@ -66,18 +66,20 @@ The following table describes fields in ``test.csv'' and ``training.csv'':
 \end{tabular}
 
 
-\hfill \break
-
+\newpage
 The following table describes fields in ``store.csv'':
 
-\begin{tabular}{| c | L{3.5cm} |}
+\begin{tabular}{| L{2cm} | L{5cm} |}
   \hline
   Store & the unique id for each store (positive integer ranging from 1 to 1115) \\ \hline
   StoreType & the store's model (4 types: a, b, c, d) \\ \hline
+  CompetitionDistance & the distance in meters to the nearest competing store (positive number ranging from 20.0 to 75860.0, and NA's if no competitors) \\ \hline
+  Competition OpenSince Month & the approximate month of the time when the nearest competing store opened (positive integer ranging from 1 to 12, and NA's if no competitors) \\ \hline
+  Competition OpenSince Year & the approximate year of the time when the nearest competing store opened (positive integer ranging from 1900 to 2015, and NA's if no competitors) \\ \hline
   Assortment & the store's assortment level (a = basic, b = extra, c = extended) \\ \hline
   Promo2 & an indicator of whether the store was participating in a promotion that runs over a period of time  (0 if not participating, 1 if participating) \\ \hline
-  Promo2SinceWeek & the approximate week of year when the store started to participate in promo2 (positive integer ranging from 1 to 50, and NA's if no promo2) \\ \hline
-  Promo2SinceYear & the approximate year of time when the store started to participate in promo2 (positive integer ranging from 2009 to 2015, and NA's if no promo2) \\ \hline
+  Promo2 SinceWeek & the approximate week of year when the store started to participate in promo2 (positive integer ranging from 1 to 50, and NA's if no promo2) \\ \hline
+  Promo2 SinceYear & the approximate year of time when the store started to participate in promo2 (positive integer ranging from 2009 to 2015, and NA's if no promo2) \\ \hline
 \end{tabular}
 
 \section{Methods}
