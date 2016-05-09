@@ -1,7 +1,7 @@
 # Min Gu (Min) Jo, Wonjohn Choi
-# SID: 21840115, _
-# KAGGLE: Airbnb
-################################## # Section A: Pre-processing ################################ 
+# SID: 21840115, 23123143
+# STAT 151A Final Project "Kaggle Challenge: Predicting Rossmann Store Sales"
+
 install.packages("data.table")
 install.packages("corrplot")
 install.packages("lubridate")
@@ -17,9 +17,9 @@ library(lars)
 library(xgboost)
 library(dplyr)
 library(Matrix)
-
 setwd("/Users/mgjmingujo/Desktop/STAT151A/final_project/")
 
+################################## # Section A: Pre-processing ################################ 
 df_kaggle_test <- read.csv("data/test.csv", stringsAsFactors = FALSE)
 df_train <- read.csv("data/train.csv", stringsAsFactors = FALSE)
 df_store <- read.csv("data/store.csv", stringsAsFactors = FALSE)
@@ -100,9 +100,6 @@ hist(train$Customers, 100) # Customers histogram
 M <- cor(train)
 corrplot(M, method="circle") # Overall correlation plot
 corrplot(M, method="number")
-#ggplot(train, aes(x = log(Customers), y = log(Sales))) + 
-#  geom_point(alpha = 0.2, col = "blue") + geom_smooth(col = "red")
-# -> Sales is as expected strongly correlated with the number of customers. 
 
 ## -> It looks like the Boxplots of customers overlap a little more than the boxplots 
 ## of sales. This would mean that the promos are not mainly attracting more 
@@ -123,23 +120,8 @@ ggplot(train_for_plot, aes(x = factor(DayOfWeek), y = Sales)) +
   theme(axis.text.y = element_text(size=12))
 dev.off()
 
-ggplot(train,aes(x=CompetitionDistance, y=Average.Sales)) + geom_point(color="blue") + 
-  ggtitle("Average sales by Competition Distance") +
-  geom_text(data=r_df, aes(label=paste("rsq=", rsq)), 
-            x=-Inf, y=Inf, hjust=-0.2, vjust=1.2)+
-            geom_point() + 
-            facet_wrap(~l, scales="free")
 
 ## They are negatively correlated. 
-
-#zerosPerStore <- sort(tapply(train$Sales, list(train$Store), function(x) sum(x == 0)))
-#hist(zerosPerStore,100)
-
-#ggplot(train[train$Store == 262,], aes(x = Date, y = Sales, color = factor(DayOfWeek == 7))) + 
-#  geom_point(size = 2) + ggtitle("Sunday vs. rest of day Sales of store 262 (True == sunday)") + scale_color_manual(values = c("red","blue"))
-
-## -> There are also stores that have no zeros in their sales. These are the exception 
-## since they are opened also on sundays / holidays. The sales of those stores on sundays are particularly high:
 
 ####################Section C: Utility Functions ##############################
 # rmspe
@@ -178,7 +160,7 @@ predict_all = predict(lm_all, newdata = validationset)
 rmspe_all = compute_rmspe(predict_all, validationset$Sales)  # 0.09101
 output_to_kaggle(predict(lm_all, newdata = kaggle_test)) # kaggle result: 0.21036
 
-summary(lm0)
+summary(lm_all)
 #############Section G: Variable Selection-Backward Elimination ###################
 # after backward elimination
 lm_backward_elimination <- lm(formula = "Sales~DayOfWeek+Open+Promo+StateHoliday+SchoolHoliday+StoreType+Assortment+Average.Sales+LogCompetitionDistance+day+month+year"
@@ -192,19 +174,6 @@ lm_aic <- stepAIC(lm_all, direction="both")
 predict_aic = predict(lm_aic, newdata = validationset)
 rmspe_aic = compute_rmspe(predict_aic, validationset$Sales)  # 0.091006
 output_to_kaggle(predict(lm_aic, newdata = kaggle_test)) # kaggle result: 0.21039
-
-# LASSO?
-las <- lars(as.matrix(trainingset), trainingset$Sales, type="lasso")
-head(trainingset)
-
-lm_ridge = lm.ridge(formula = "Sales ~ . - Sales - Store - PromoInterval"
-         , data = trainingset)
-coef(lm_ridge)
-predict_ridge = predict(lm_ridge, newdata = validationset)
-rmspe7_ridge = compute_rmspe(predict_ridge, validationset$Sales)  # 0.909679
-
-
-# output_to_kaggle(predict(lm7_reduced, newdata=kaggle_test))
 
 ########################Section I: Random Forest ###############################
 trainingset$logSales <- log1p(trainingset$Sales)
@@ -220,28 +189,29 @@ features<-colnames(trainingset)[!(colnames(trainingset) %in% c("Sales","logSales
 rmspes = c()
 depths = 1:28
 for (depth in depths) {
-## Train a random forest using all default parameters
-rf_model <- h2o.randomForest(x=features,
-                             y="logSales", 
-                             ntrees = 100,
-                             max_depth = depth,
-                             nbins_cats = 1115, ## allow it to fit store ID
-                             training_frame=trainH2O)
-
-#summary(rf_model)
-predict_rf <- function(dataset) {
-  # Load test data into cluster from R
-  testH2O<-as.h2o(dataset)
-  # Get predictions out; predicts in H2O, as.data.frame gets them into R
-  predictions<-as.data.frame(h2o.predict(rf_model,testH2O))
-  # Return the predictions to the original scale of the Sales data
-  pred <- expm1(predictions[,1])
-  return (pred)
+  # Train a random forest using all default parameters
+  rf_model <- h2o.randomForest(x=features,
+                               y="logSales", 
+                               ntrees = 100,
+                               max_depth = depth,
+                               nbins_cats = 1115, ## allow it to fit store ID
+                               training_frame=trainH2O)
+  
+  # summary(rf_model)
+  predict_rf <- function(dataset) {
+    # Load test data into cluster from R
+    testH2O<-as.h2o(dataset)
+    # Get predictions out; predicts in H2O, as.data.frame gets them into R
+    predictions<-as.data.frame(h2o.predict(rf_model,testH2O))
+    # Return the predictions to the original scale of the Sales data
+    pred <- expm1(predictions[,1])
+    return (pred)
+  }
+  predicted_rf = predict_rf(validationset)
+  rmspe_rf = compute_rmspe(predicted_rf, validationset$Sales) # 0.020639
+  rmspes = c(rmspes, rmspe_rf)
 }
-predicted_rf = predict_rf(validationset)
-rmspe_rf = compute_rmspe(predicted_rf, validationset$Sales) # 0.020639
-rmspes = c(rmspes, rmspe_rf)
-}
+rmspes
 # [1] 0.28053805 0.14347688 0.11141898 0.09312881 0.07808361 0.06382744 0.05300004 0.04769128
 # [9] 0.04260704 0.04003271 0.03604101 0.03357333 0.03185075 0.02987905 0.02719300 0.02629616
 # [17] 0.02597022 0.02486022 0.02333302 0.02286865 0.02230270 0.02161584 0.02115328 0.02065601
@@ -288,8 +258,6 @@ trainingset <- subset(trainingset, select = -c(logSales))
 write.csv(data.frame(Id=kaggle_test$Id, Sales=predict_rf(kaggle_test)), "pred.csv", row.names=F)
 # kaggle result: 0.14411 (depth=30, ntrees=100)
 
-
-
 #########################Section J: Gradient Boosting ##########################
 require(xgboost)
 
@@ -325,15 +293,11 @@ for (eta in etas) {
   rmspe_gb <- compute_rmspe(predictions, validationset$Sales)
   rmspes_gb <- c(rmspes_gb, rmspe_gb)
 }
-val_error_rates <-c(0.14894, 0.13986, 0.13789, 0.13687, 0.13531, 0.13234, 0.18041, 0.21930, 0.23043, 0.33187)
-val_error_rates <- val_error_rates - 0.115
-
 
 png("gb_rmpse.png", width = 610, height = 500)
-plot(etas, val_error_rates, type = 'o', xlab = 'Step Size (a)', ylab = 'Validation Error Rate',xlim=rev(range(etas)), main="RMSPES for Gradient Boosting Per Step Sizes (with nrounds = 300, max_depth = 10)")
+plot(etas, rmspes_gb, type = 'o', xlab = 'Step Size (a)', ylab = 'Validation Error Rate',xlim=rev(range(etas)), main="RMSPES for Gradient Boosting Per Step Sizes (with nrounds = 300, max_depth = 10)")
 dev.off()
 
-val
 # step size = 0.02
 submission <- data.frame(Id=validationset$Id, Sales=predictions)
 write.csv(submission, paste(eta,"xgb2.csv",collapse="_"),row.names=FALSE)
