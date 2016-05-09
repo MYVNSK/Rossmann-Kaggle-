@@ -33,18 +33,18 @@
 
 
 \section{Abstract}
-Our project attempted to apply linear regression and various machine learning techniques to a real-world problem of predicting drug store sales. Rossmann, Germany's second-largest drug store chain, has provided past sales information of 1115 Rossmann stores located across Germany. We preprocessed, feature-engineered the data, and examined 4 different statistical / machine learning analysis for forecasting sales of each store: multivariate linear regression with various feature selection methods, random forest, and gradient boosting. Then, we compared the methods' predictive power by computing Root Mean Square Percentage Error (RMSPE). We found that Gradient Boosting model performed the best with a RMSPE score of 0.13234.
+Our project attempted to apply linear regression and various machine learning techniques to a real-world problem of predicting drug store sales. Rossmann, Germany's second-largest drug store chain, has provided past sales information of 1115 Rossmann stores located across Germany. We preprocessed, feature-engineered the data, and examined 3 different statistical / machine learning analysis for forecasting sales of each store: multivariate linear regression with various feature selection methods, Random Forest regression, and Gradient Boosting with regression trees. Then, we compared the methods' predictive power by computing Root Mean Square Percentage Error (RMSPE). We found that Gradient Boosting model performed the best with a RMSPE score of 0.13234.
 
 \section{Introduction}
-The objective of this project is to predict 6 weeks of daily sales for 1115 Rossmann stores located across Germany using the data which was provided by Rossmann through Kaggle. The motivation of this project is the following: by reliably predicting daily sales, store managers may decrease operational costs, and create effective staff schedules (ex. by assigning more staffs during busy days) (``Rossmann Store Sales''). Also, we would like to identify which type of techniques be effective in a real-world sales prediction task. Before building any regression or machine learning models for the prediction, we attempted to define which features are significant to determine daily sales of stores. By performing exploratory data analysis, we found how some features such as promotion and competitor distance affect the sales. % sounds little strange
+The objective of this project is to predict 6 weeks of daily sales for 1115 Rossmann stores located across Germany using the data which was provided by Rossmann through Kaggle. The motivation of this project is the following: by reliably predicting daily sales, store managers may decrease operational costs, and create effective staff schedules (ex. by assigning more staffs during busy days) (``Rossmann Store Sales''). Also, we would like to identify which type of techniques be both efficient and effective in a real-world sales prediction task. Before building any regression or machine learning models for the prediction, we attempted to identify which features in the data might be significant to determine daily sales of stores, and investigate any interesting relationships between variables.
 
-To confirm our assumption and apply various techniques for the prediction, we first explored several similar efforts that made for sales prediction task in the past in order to set the basis of our study. 
+To start off, we first explored several similar efforts that made for sales prediction task in the past in order to set the basis of our study, and reviewed them to discover how we can improve for our regression task. 
 
-- Linear Regression: The professor at Western Illionois University suggests multiple linear regression with various feature selection methods and multicollinearity diagnostics to be a popuplar technique in sales forecasting. This model was applied for predicting the number of subscribers that a cable station can expect, which is closely related to our task (Dehkordi-Vakil). We decided to apply this technique along with partial t-test and stepwise regression to select significant features. 
+- Linear Regression: The professor at Western Illinois University suggests multiple linear regression with various feature selection methods and multicollinearity diagnostics to be a popuplar technique in sales forecasting. This model was applied for predicting the number of subscribers that a cable station can expect, which is closely related to our task (Dehkordi-Vakil). However, her features in her dataset for her regression task were only 5 compared to our 20. Also, she didn't engineer her features much, while some of our features required one hot encoding to extract more informations and increase dimensions of our dataset. Therefore, compared to her, we decided to apply several various feature selection methods such as partial t-test and stepwise regression to select significant features. 
 
-- Random Forest: Random Forest is a tree-based ensemble method where all trees depend on a collection of random variables. (Breiman). Breiman, UC Berkeley professor, suggests that Random Forest algorithm is actually from a classification viewpoint but the approach is applicable to regression as well (Breiman). Therefore, we consider the Random Forest is also applicable to our sales prediction regression task. Nils Adriansson and Ingrid Mattsson in their thesis applies the Random Forest into a GDP forecast task, showing its power in time-series forecasting (Adriansson). However, for the train dataset, they had only 58 observations compared to our ${~1,000,000}$. To make our computation faster, we chose to use ``H2O'' library which enables parallelized computation although Adriansson used R's Random Forest. We assume this algorithm would outperform linear regression because Breiman states that the Random Forest does not need to assume any distribution for variables (Breiman).
+- Random Forest: Random Forest is a tree-based ensemble method where all trees depend on a collection of random variables. (Breiman). Breiman, UC Berkeley professor, suggested that Random Forest algorithm is actually from a classification viewpoint but the approach is applicable to regression as well (Breiman). Therefore, we consider the Random Forest is also applicable to our sales prediction task. For a similar apporach, Nils Adriansson and Ingrid Mattsson in their thesis applies the Random Forest into a GDP forecast task, showing its power in time-series forecasting (Adriansson). However, for the train set, they had only 58 observations compared to our ${~1,000,000}$. To make our computation faster, we chose to use ``H2O'' library which enables parallelized computation although Adriansson could easily use R's Random Forest for his smaller dataset. We assume this algorithm would outperform linear regression because Breiman states that the Random Forest does not need to assume any distribution for variables (Breiman).
 
-- Gradient Boosting: We also found an useful article by Jay Gu, PhD in Machine Learning from Carnegie Mellon University, on gradient boosting regression. In his article, he asserted that, for predictive analytics, the gradient boosted tree model (GBM) is one of the most effective machine learning models. As he did, we have also witnessed a good number of winning solutions for various kaggle competitions that contain boosted tree models as a crucial component. We got the basic framework from Tianqi Chen's presentation (Chen). In his ``Bike Sharing classification prediction'', we witnessed that Gu reduces his computation time efficiently by dividing out certain features to seperately train models. He later combines the predictions of these models to calculate weighted sums for binary classification (Gu). We consider that his seperate training of models might force him to also tune hyperparameters seperately which would worsen his runtime efficiency. For our regression task, since we have to direcly predict the number of sales, we decided to not seperately train Gradient Boosting models, but increase our time efficieny by using R's `XGBoost` library to perform parallelized computation which enables faster cross validations and more hyperparameter tuning. 
+- Gradient Boosting: We also found an useful article by Jay Gu, PhD in Machine Learning from Carnegie Mellon University, on gradient boosting regression. In his article, he asserted that, for predictive analytics, the gradient boosted tree model (GBM) is one of the most effective machine learning models (Gu). As he did, we have also witnessed a good number of winning solutions for various kaggle competitions that contain boosted tree models as a crucial component. To set the basic framework of Gradient Boosting, we reviewed Tianqi Chen's presentation (Chen). In Gu's ``Bike Sharing classification prediction'', we witnessed that Gu reduced his computation time efficiently by dividing out certain features to seperately train boosting models. He later combined the predictions of these models to calculate weighted sums for his binary classification (Gu). We consider that his seperate training of models might enforce him to also tune hyperparameters seperately which would worsen his runtime efficiency. For our regression task, since we have to direcly predict the number of sales, we decided to not seperately train Gradient Boosting models, but increase our time efficieny by using R's `XGBoost` library to perform parallelized computation which enables faster cross validations for more hyperparameter tuning. 
 
 
 \subsection{Description of Datasets}
@@ -79,17 +79,17 @@ The following table describes fields in ``store.csv'':
 \end{tabular}
 
 \section{Methods}
-We first worked on preprocessing the raw data given by Rossmann.
+We first performed preprocessing the raw data given by Rossmann.
 
 \subsection{Preprocessing}
 
 For preprocessing, we have done the followings using our R codes in ``Section A: Pre-processing'' of the supplementary file ``final-project.R''.
 
 We first merged ``train.csv'' and ``store.csv'' by ``Store'' because we can predict daily sales better with more data related to the sales. We also merged ``test.csv'' and ``store.csv'' by ``Store''. \\
-Then, We removed ``Customers'' field from the training data because it does not exist in the test data so we cannot use ``Customers'' to predict ``Sales''. \\
+Then, we removed ``Customers'' field from the training data because it does not exist in the test data so we cannot use ``Customers'' to predict ``Sales''. \\
 For ``CompetitionDistance'' with NA values, we replaced NA with 1000000. Since 1000000 is much more bigger than any other distances, replacing NA with the number simulated an effect of having no competitor. In the similar way, we filled missing values for ``CompetitionOpenSinceYear'' and ``CompetitionOpenSinceMonth''. \\
 Similarly, for ``Promo2SinceYear'' with NA valus, we replaced NA with 1990 to simulate the effect of having no promo2. \\
-We splitted ``Date'' field into three fields: ``year'', ``month'', and ``day'' to better account for the effects each components of date have. \\
+We splitted ``Date'' field into three fields: ``year'', ``month'', and ``day'' to better account for the effects each components of the date have. \\
 We computed average sales for each store to create a new field ``Average.Sales''. This variable seemed to be an indicator of how well a store will perform in future. This makes sense because a store with a strong past performance is likely to perform well in future. \\
 We noticed the feature ``CompetitionDistance'' is highly skewed to right. For the sake of linear regression, we took log transformation on the feature ``CompetitionDistance'' to create a new field ``LogCompetitionDistance'' to make sure that the relationship between explanatory variables and dependent variable is approximately linear.
 
@@ -126,55 +126,54 @@ where ${y_i}$ is a store's sales on a single day, ${yhat_i}$ is the daily sales 
 Our R codes used to compute error rates are in ``Section B: Utility Functions'' of the supplementary file ``final-project.R''.
 
 \subsection{Benchmark}
-Our benchmark is simply the average sales of each store. Precisely, we predict daily sales of a store for a day by the average daily sales the store had in the training data set. This method does not account for many factors (whether the day was holiday, whether the store was running a promotion on the day, etc), so we expect its error rate to have a higher error rate than any other methods we applied.
+Our benchmark is simply the average sales of each store. It is intuitive to predict daily sales of a store for a day with the average daily sales of a corresponding store. This method does not take account for many factors (whether the day was holiday, whether the store was running a promotion on the day, etc); thus, we expect its error rate to be higher than any other methods we applied.
 
 Our R codes for benchmark are in ``Section D: Benchmark'' of the supplementary file ``final-project.R''.
 
 \subsection{Linear Regression}
 Linear regression is an approach for modeling the relationship between dependent variable Y (in our case, ``Sales'') and explanatory variables X. To apply linear regression on the data, we decided to use R's $lm$ function. $lm$ is an implemention of multivariate linear regression. If we supply $Y \sim X$ as the input, $lm$ builds and returns a model that can be used to predict $Y$ using $X$. Under the hood, it basically solves the normal equation $\beta = (X^T X)^{-1} X^T Y$.
 
-We first built linear model with all available features (DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, CompetitionOpenSinceMonth, CompetitionOpenSinceYear, Promo2, Promo2SinceYear, Average.Sales, LogCompetitionDistance, CompetitionDistance, day, month, year) using the training set. Then, we applied the linear model on validation set.
+We first built linear model with all available features (``DayOfWeek'', ``Open'', ``Promo'', ``StateHoliday'', ``SchoolHoliday'', ``StoreType'', ``Assortment'', ``CompetitionOpenSinceMonth'', ``CompetitionOpenSinceYear'', ``Promo2'', ``Promo2SinceYear'', ``Average.Sales'', ``LogCompetitionDistance'', ``CompetitionDistance'', ``day'', ``month'', ``year'') using the training set. Then, we applied the linear model on validation set.
 
 Our R codes for linear regression are in ``Section E: Linear Model'' of the supplementary file ``final-project.R''.
 
 \subsubsection{Feature Selection}
-Then, we did feature selection to reduce complexity of linear model. Before working on feature select, we took a look at the resulting lm with R function $summary(lm)$ to get some general idea of how important each variable is. All features except CompetitionDistance, CompetitionOpenSinceMonth, CompetitionOpenSinceYear, Promo2, Promo2SinceYear were significant with p-value less than 0.05.
+Then, we selected significant features to reduce complexity of the linear model. Beforehand, we took a look at the resulting lm with R function $summary(lm)$ to get some general idea of how important each variable is. Especially, we paid attention on partial t-test results (t-statistics) on the table. All features except ``CompetitionDistance'', ``CompetitionOpenSinceMonth'', ``CompetitionOpenSinceYear'', ``Promo2'', ``Promo2SinceYear'' were significant with p-value less than 0.05.
 
 \subsubsection{Feature Selection-Backward Elimination}
-For feature selection, we first applied backward elimination by repeatedly removing features with the highest p-value until no feature has p-value higher than 0.05. As the result, we obtained DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, Average.Sales, LogCompetitionDistance, day, month, year. Then, we built linear model with the selected variables using the training set and applied linear regression with the model on the validation set.
+Then, we applied backward elimination by repeatedly removing features with the highest p-value until no feature has p-value higher than 0.05. As the result, we obtained ``DayOfWeek'', ``Open'', ``Promo'', ``StateHoliday'', ``SchoolHoliday'', ``StoreType'', ``Assortment'', ``Average.Sales'', ``LogCompetitionDistance'', ``day'', ``month'', ``year''. Then, we built a linear model with the selected variables using the training set and performed prediction on the validation set.
 
 Our R codes for linear regression with backward elimination are in ``Section F: Variable Selection-Backward Elimination'' of the supplementary file ``final-project.R''.
 
 \subsubsection{Feature Selection-Akaike Information Criterion}
-Another approach we had for feature selection was using Akaike information criterion (AIC). AIC provides a meature of relative quality of models with the equation $AIC = 2k - 2 ln(L)$ where $k$ is the number of estimated paramters in the model and $L$ is the value of likelihood function. We performed AIC by using R function $stepAIC$.
+Another approach we attempted for feature selection was using Akaike information criterion (AIC). AIC provides a measure of relative quality of models with the equation $AIC = 2k - 2 ln(L)$ where $k$ is the number of estimated paramters in the model and $L$ is the value of likelihood function. We performed AIC by using R function $stepAIC$ (Mazerolle).
 
 Our R codes for linear regression with AIC are in ``Section G: Variable Selection-AIC'' of the supplementary file ``final-project.R''.
 
 \subsection{Random Forest}
-Random Forest is an ensemble learning method that constructs decisions tree using training set. By aggregating many decision trees, Random Forest can make predictions while avoiding overfitting because it uses an ensemble of regression trees over different samples of the data. Here is our Random Forest Regression steps: \\
+Random Forest is an ensemble learning method that constructs decisions tree using training set. By aggregating many decision trees, Random Forest can make predictions while avoiding overfitting because it uses an ensemble of regression trees over different samples of the data (Breiman). Here is our Random Forest Regression steps: \\
 \begin{enumerate}
-\item Construct random forest trees (number of trees is defined by hyper parameter)
+\item Construct random forest regression trees (number of trees is defined by hyper parameter)
 \item Classify the incoming data into the decision tree node
 \item Calculate the mean value for each node for prediction
 \end{enumerate}
 
-In particular, we used H2O’s RandomForest package to carry out the training and prediction. Then, we optimized parameters to improve on our prediction model. H2O is the open source math engine for huge dataset (TODO). Since H2O package enables us to compute Random Forest Regression algorithm in parallel distribution, we decided to use the package for faster computation compared to R's Random Forest package.
+In particular, we used H2O’s RandomForest package to carry out the training and prediction. Then, we optimized parameters to improve on our prediction model. H2O is the open source math engine for huge dataset (Aiello). Since H2O package enables us to compute Random Forest Regression algorithm in parallel distribution, we decided to use the package for faster computation compared to R's Random Forest package.
 
-To find the best hyperparamters, we tried different values of hyperparamter and tested the results on validation set using for loops.
+To find the best hyperparamters, we tried different values of hyperparamters, and compared the results on validation sets using cross validation steps.
 
 Our R codes for random forest are in ``Section H: Random Forest'' of the supplementary file ``final-project.R''.
 
 \subsection{Gradient Boosting}
-The similarity between Random Forest and Gradient Boosting is that both generate decision trees. However, Random forest uses bootstrapping method for training while Gradient Boosting builds decision tree over the residuals. In other words, Gradient Boosting Tree generates the decision tree as it optimizes on a proper loss function (   ). This refers that we can establish our own loss function for optimization, while we couldn't do in Random Forest. We set our loss function to be our error metric, RMPSE. Our decision trees here are regression trees. Each regression tree divides the data point at each non-leaf node according to a constraint on a feature. The leaf node value of a data point decides its score, and a data point is predicted by averaging the scores of the leaf node it belongs to.
+The similarity between Random Forest and Gradient Boosting is that both generate decision trees. However, Random forest uses bootstrapping method for training while Gradient Boosting builds decision tree over the residuals. In other words, Gradient Boosting Tree generates the decision tree as it optimizes on a proper loss function (Chen). This refers that we can establish our own loss function for optimization, while we couldn't do in Random Forest. We set our loss function to be our error metric, RMPSE. Our decision trees here are regression trees. Each regression tree divides the data point at each non-leaf node according to a constraint on a feature. The leaf node value of a data point decides its score, and a data point is predicted by averaging the scores of the leaf node it belongs to.
 
-In particular, we used R's xgboost package. XGBoost also known as Extreme Gradient Boosting is a powerful supervised learning algorithm (). This package enables an automatic parallel computation on a single machine. For our regression task, we put ``reg:linear'' as a parameter. Our training objective here is :
+In particular, we used R's xgboost package. XGBoost also known as Extreme Gradient Boosting is a powerful supervised learning algorithm (Chen). This package enables an automatic parallel computation on a single machine. For our regression task, we put ``reg:linear'' for our objective function. 
 
-at most d times, since we might have to try up to d values for Xj before finding a solution
 
 Our R codes for gradient boosting are in ``Section I: Gradient Boosting'' of the supplementary file ``final-project.R''.
 
 \section{Supplementary Methods}
-For anyone who would like to reproduce results in this paper, we provided datasets and R codes we used in tar file ``supplementary-methods.tar.gz''.
+For anyone who would like to reproduce the results in this paper, we provided datasets and R codes we used in tar file ``supplementary-methods.tar.gz''.
 
 To untar this tar file, please run the following command: ``tar xvfz somefilename.tar.gz''.
 
@@ -184,13 +183,11 @@ This tar file should contain ``final-project.R'', ``data/store.csv'', ``data/tes
 
 \section{Results}
 \subsection{Benchmark}
-Our benchmark is the average sales of each store. The error rate for benchmark was 0.106209 on validation set and 0.25789 on the test set (when submitted to Kaggle website). This is our baseline model. Our goal is to improve our prediction by outperforming the benchmark by large degree at the end. 
+Our benchmark is the average sales of each store. The error rate for benchmark was 0.106209 on the validation set and 0.25789 on the test set (when submitted to Kaggle website). This is our baseline model. Our goal is to improve our prediction by outperforming the benchmark by large degree at the end. 
 
 \subsection{Linear Model}
 The error rates of our different linear models on validation and test sets are the following:
 
-TODO blah blahblahblah features blachblashblash 
-TODO http://cseweb.ucsd.edu/~jmcauley/cse255/reports/fa15/022.pdf
 
 \begin{center}
     \begin{tabular}{| l | l | l |}
@@ -206,27 +203,30 @@ TODO http://cseweb.ucsd.edu/~jmcauley/cse255/reports/fa15/022.pdf
     \end{tabular}
 \end{center}
 
-Through variance selection, the following features CompetitionDistance, CompetitionOpenSinceMonth, CompetitionOpenSinceYear, Promo2, Promo2SinceYear were insignificant so were removed.
+TODO blah blahblahblah features blachblashblash 
+TODO http://cseweb.ucsd.edu/~jmcauley/cse255/reports/fa15/022.pdf
+
+Through feature selection, the following features ``CompetitionDistance'', ``CompetitionOpenSinceMonth'', ``CompetitionOpenSinceYear'', ``Promo2'', ``Promo2SinceYear'' were insignificant so were removed.
 
 \subsection{Random Forest}
-The major parater we tune for Random Forest is the depth and number of trees. We used 5 fold cross validation to compute average RMSPE while varying the depth and number of trees. The plot for varying depth is shown below:
+The major parameters we tune for Random Forest are the depth and number of trees. We used 5 fold cross validation to compute average RMSPE while varying the depth and number of trees. The learning curve for increasing depth is shown below:
 
 \includegraphics[scale=0.35]{img/RandomForestPerDepth.png}
 
-As the plot illustrates, we see that RMSPE does not change much after depth reaches 20. Also, we confirm that the test error rate 
+As the curve illustrates, we see that RMSPE does not change much after the depth of trees reaches 20. Also, we confirm that the test error rate TODO
 
-The plot for varying ntrees is shown below:
+The learning curve for increasing ntrees is shown below:
 
 \includegraphics[scale=0.35]{img/RandomForestPerNtrees.png}
 
-We see that unlike depth, ntrees does not have much impact on RMSPE (TODO).
+We see that, unlike the depth of trees, the number of trees parameter does not have much impact on RMSPE (TODO).
 
 As the plot illustrates, we could see that RMSPE does not change much after the number of tree reaches TODO. Also, we could confirm that the test error rate does not increase even if the number of trees reaches as big as TODO. This is because Random Forest tree utilizes random amount of the data for training. In the algorithm, the training set for a tree is drawn by sampling with replacement.
 
 Hence, we chose 30 as depth, 100 as ntrees to run random forest. The error rate for random forest (depth=30, ntrees=100) was 0.020639 for validation set and 0.14411 on test set.
 
 \subsection{Gradient Boosting}
-Before comparing the results of gradient boosting with other algorithms we performed, let's explore on the results of gradient boosting itself only. Although we already feature engineered our data set, we decided to also see how our test error rate changes when we exclude stores with 0 sales. As we did in previous methodologies, we tried a range of certain parameters to maximize its prediction accuracy. Since the major issue of all machine learning tasks is to prevent overfitting on training data, we also used 5-fold cross validation to generalize. We computed the average error rates of 5-fold as a parameter changes, and graphed them to choose the best parameter. There are actually more parameters to tune in Gradient Boosting. There are three major parameters subject to be tuned: the step size of each boosting step (learning rate), maximum depth, and the max number of iterations. For our task, we decided to use the default number of trees and max number of iterations, but tune the step size. We might check how the different number of iterations affect the performance, but we checked it did not affect much but exponentially increase the runtime. We decided to set it as 300, and try different step sizes. 
+Before comparing the results of gradient boosting with other algorithms we performed, let's explore on the results of gradient boosting itself only. Although we already feature engineered our data set, we decided to also see how our test error rate changes when we exclude stores with 0 sales. As we did in previous methodologies, we tried a range of certain parameters to maximize its prediction accuracy. Since the major issue of all machine learning tasks is to prevent overfitting on training data, we also used 5-fold cross validation to generalize. We computed the average error rates of 5-fold as a parameter changes, and graphed them to choose the best parameter. There are actually more parameters to tune in Gradient Boosting. There are three major parameters subject to be tuned: the step size of each boosting step (learning rate), maximum depth, and the max number of iterations. For our task, we decided to use the default number of trees and max number of iterations, but tune the step size. We might check how the different number of iterations affect the performance, but we checked it did not affect much but exponentially increase its runtime. We decided to set it as 300, and try different step sizes. 
 
 The effects of tuning the step size are visualized in the following graph:
 
@@ -262,7 +262,7 @@ Although we readily outperformed our benchmark, as we expected, linear regressio
 
 There were TODO features removed by feature selection method. We think TODO 
 
-As a result, we were able to achieve TODO RMPSE using gradient boosting to predict Rossmann drugstore sales without using customer number information. Although boosting performed very well for this dataset, we witnessed it's harder to tune parameters and took longer time to train the data compared to Random Forest. While the number of tree is only usually tuned to train Random Forest, Gradient Boosting model requires several parameters to be tuned. In addition, tuning such parameters and comparing corresponding performances requires much more time than computing Random Forest algorithm. Also, Random Forest does not easily overfit. Often, many statisticans say Random Forests does not overfit. The testing performance of Random Forests does not decrease (due to overfitting) as the number of trees increases (Breiman). However, Boosting algorithm is more robust to overfitting because it relies on every single data point and tries to find optimal linear combination of regression trees given the train dataset. Thus, it requires proper tuning to avoid it. As shown in the table, it took more than 5 hours to train Gradient Boosting model, and compute different error rates according to different parameters over 5-fold cross validation. We could have potentially increased the size of the number of tree and get better precision, at the risk of overfitting and longer training time which is a tradeoff between time and accuracy.
+As a result, we were able to achieve 0.13234 test error rate using gradient boosting to predict Rossmann drugstore sales. Although boosting performed very well for this dataset, we witnessed it's harder to tune parameters and took longer time to train the data compared to Random Forest. While the number of tree is only usually tuned to train Random Forest, Gradient Boosting model requires several more parameters to be well-tuned. In addition, tuning such parameters and comparing corresponding performances requires much more time than computing Random Forest algorithm. Also, Random Forest does not easily overfit. Often, many statisticans including Breiman claim Random Forests does not overfit. We actually witnessed this statement that our validation error rate of Random Forests did not increase back up (due to overfitting) as the number of trees increases (Breiman). However, Boosting algorithm is more robust to overfitting because it relies on every single data point and tries to find optimal linear combination of regression trees given the train dataset. Thus, it requires proper tuning to avoid such problem. As shown in the table, it took more than 5 hours to train Gradient Boosting model, and compute different error rates according to different parameters over 5-fold cross validation. We could have potentially increased the size of the number of tree and get better precision, at the risk of overfitting and longer training time which is a tradeoff between time and accuracy.
 
 In conclusion, we can check that our well-tuned gradient boosting model outperformed Random Forest. 
 
@@ -286,6 +286,8 @@ Chen, Tianqi. ”Introduction to Boosted Trees.” (2014): n. pag. <https://home
 Gu, Jay (Haijie). ``Using Gradient Boosted Trees to Predict Bike Sharing Demand.'' Dato. 19 Aug. 2014. Web. 5 May 2016.
 
 ``Rossmann Store Sales.'' Rossmann Store Sales. Kaggle, 30 Sept. 2015. Web. 5 May 2016. <https://www.kaggle.com/c/rossmann-store-sales>.
+
+Mazerolle, Marc J. ``Making Sense out of Akaike’s Information Criterion.'' Avesbiodiv, Feb. 2007. Web. \<http://avesbiodiv.mncn.csic.es/estadistica/senseaic.pdf\>.
 
 \section{Author Contributions}
 
