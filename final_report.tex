@@ -78,7 +78,6 @@ The following table describes fields in ``store.csv'':
   Promo2 & an indicator of whether the store was participating in a promotion that runs over a period of time  (0 if not participating, 1 if participating) \\ \hline
   Promo2SinceWeek & the approximate week of year when the store started to participate in promo2 (positive integer ranging from 1 to 50, and NA's if no promo2) \\ \hline
   Promo2SinceYear & the approximate year of time when the store started to participate in promo2 (positive integer ranging from 2009 to 2015, and NA's if no promo2) \\ \hline
-  PromoInterval & the months when the promo2 started (comma \\ \hline
 \end{tabular}
 
 \section{Methods}
@@ -109,12 +108,14 @@ To check any distinctive relationships between variables before applications of 
 
 \subsection{5-fold Cross Validation}
 To generalize our predictions to limit problems of overfitting on the training set, we decided to ramdomly partition the original training observations into 5 equal sized subsamples. The training set is comprised of 4 equal sized subsamples and the rest as the validation set. For the purpose of reproducibility and comparison of the predictive powers of different models, we set the seed (with a value of 42). Our general process would be as the following:
-1. Repeat cross-validation process 5 times with each of the 5 subsamples used exactly once as the validation set.
-2. Compute the average of 5 different validation error rate. 
-3. Predict sales on the test set using the model. 
-4. Submit on Kaggle website to get the test error rate.
-5. Compare the average validation error rate and the test error rate among differnent models.
-
+\begin{enumerate}
+\item  Repeat cross-validation process 5 times with each of the 5 subsamples used exactly once as the validation set.
+\item Compute the average of 5 different validation error rate. 
+\item Predict sales on the test set using the model. 
+\item Submit on Kaggle website to get the test error rate.
+\item Compare the average validation error rate and the test error rate among differnent models.
+\end{enumerate}
+  
 \textit{Our R codes for 5-fold cross validation are in ``Section D: Cross Validation'' of the supplementary file ``final-project.R''.}
 
 \subsection{Error Metric}
@@ -294,9 +295,51 @@ Gu, Jay (Haijie). ``Using Gradient Boosted Trees to Predict Bike Sharing Demand.
 ``Rossmann Store Sales.'' Rossmann Store Sales. Kaggle, 30 Sept. 2015. Web. 5 May 2016. $\langle$https://www.kaggle.com/c/rossmann-store-sales$\rangle$.
 
 \section{Author Contributions}
+Min Gu Jo and Wonjohn Choi closely collarborated together during the entire span of project, so they are well-aware of what each other have worked on. We believe that both of us contributed to this project equally.
+
+Min Gu Jo contributed the followings:
+\begin{itemize}
+\item Wrote part of R codes in ``Section A: Pre-processing'' of ``final-project.R''.
+\item Wrote R codes in ``Section B: EDA'' of ``final-project.R''.
+\item Wrote part of R codes in ``Section I: Random Forest'' of ``final-project.R''.
+  \item Wrote R codes in ``Section J: Gradient Boosting'' of ``final-project.R''.
+\item Wrote part of ``1 Abstract'' section of paper.
+\item Wrote ``2 Introduction'' section of paper.
+\item Wrote ``3.2 EDA (Exploratory Data Analysis)'' section of paper.
+\item Wrote ``3.3 5-fold Cross Validation'' section of paper.
+\item Wrote ``3.7 Random Forest'' section of paper.
+\item Wrote ``3.8 Gradient Boosting'' section of paper.
+\item Wrote ``5.3 Random Forest'' section of paper.
+\item Wrote ``5.4 Gradient Boostin'' section of paper.
+\item Wrote ``7 Discussion'' section of paper.
+  
+\end{itemize}
+
+Wonjohn Choi contributed the followings:
+\begin{itemize}
+\item Wrote part of R codes in ``Section A: Pre-processing'' of ``final-project.R''.
+\item Wrote R codes in ``Section C: Utility Functions'' of ``final-project.R''.
+\item Wrote R codes in ``Section D: Cross Validation'' of ``final-project.R''.
+\item Wrote R codes in ``Section E: Benchmark'' of ``final-project.R''.
+\item Wrote R codes in ``Section F: Linear Model'' of ``final-project.R''.
+\item Wrote R codes in ``Section G: Variable Selection-Backward Elimination'' of ``final-project.R''.
+\item Wrote R codes in ``Section H: Variable Selection-AIC'' of ``final-project.R''.
+  \item Wrote part of R codes in ``Section I: Random Forest'' of ``final-project.R''.
+  
+\item Wrote part of ``1 Abstract'' section of paper.
+\item Wrote ``2.1 Description of Datasets'' section of paper.
+\item Wrote ``3.1 Preprocessing'' section of paper.
+\item Wrote ``3.4 Error Metric'' section of paper.
+\item Wrote ``3.5 Benchmark'' section of paper.
+\item Wrote ``3.6 Linear Regression'' section of paper.
+\item Wrote ``3.6.1 Feature Selection'' section of paper.
+\item Wrote ``3.6.2 Feature Selection-Backward Elimination'' section of paper.
+\item Wrote ``3.6.3 Feature Selection-Akaike Information Criterion'' section of paper.
+\item Wrote ``4 Supplementary Methods'' section of paper.
+\item Wrote ``5.1 Benchmark'' section of paper.
+\item Wrote ``5.2 Linear Model'' section of paper.
+  
+  
+\end{itemize}
 
 \end{document}
-}
-
-
-
