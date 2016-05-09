@@ -1,2 +1,2 @@
-# Airbnb-Kaggle-
-Airbnb New User Bookings
+STAT 151A final project
+Kaggle - Rossmann Sales 

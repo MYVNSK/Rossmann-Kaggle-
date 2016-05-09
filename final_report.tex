@@ -1,6 +1,14 @@
 % Copied this sample latex file from https://www.usenix.org/conferences/author-resources/paper-templates
-\documentclass[letterpaper,twocolumn,10pt]{article}
+\documentclass[letterpaper,twocolumn,11pt]{article}
 \usepackage{usenix,epsfig,endnotes}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
 \begin{document}
 
 %don't want date printed
@@ -40,50 +48,53 @@ To confirm our assumption and apply various techniques for the prediction, we fi
 
 
 \subsection{Description of Datasets}
-Data sets are given by Rossmann through Kaggle. There are three files: test.csv, train.csv, and store.csv. train.csv contains 1017209 observed daily sales of different stores from 2013 to 2015. store.csv contains supplementary information for each store (41088 lines because there are 41088 stores). train.csv and store.csv both contain Store id that we can use to join the train and store data sets. Finally, test.csv has 41088 lines of daily sales of different stores but the value of Sales column is omitted. We are expected to predict the value of Sales column for the test set (test.csv) by using the training set (train.csv) and store data (store.csv) (``Rossmann Store Sales'').
+Data sets are given by Rossmann through Kaggle. There are three files: ``test.csv'', ``train.csv'', and ``store.csv''. ``train.csv'' contains 1017209 observed daily sales of different stores from 2013 to 2015. ``store.csv'' contains supplementary information for each store (41088 lines because there are 41088 stores). ``train.csv'' and ``store.csv'' both contain Store id that we can use to join the train and store data sets. Finally, ``test.csv'' has 41088 lines of daily sales of different stores but the value of Sales column is omitted. We are expected to predict the value of Sales column for the test set (``test.csv'') by using the training set (``train.csv'') and store data (``store.csv'') (``Rossmann Store Sales'').
 
-The following describes fields in test.csv and training.csv:
-\begin{itemize}
-\item Store - the unique id for each store (positive integer ranging from 1 to 1115)
-\item DayOfWeek - the day of week (positive integer ranging from 1 to 7 where 1, 2, ..., 7 correspond to Monday, Tuesday, ..., Sunday)
-\item Date - the date (string of format YYYY­MM­DD)
-\item Sales - the total amount of revenue for this given day (positive number between 0 and 41551). This value is what needs to be predicted, so only exists in training.csv.
-\item Customers - the number of customers on the given day. This also only exists in training.csv.
-\item Open - an indicator of whether the store was open on the given day (0 if closed, 1 if open)
-\item Promo - an indicator of whether the store was running a promotion on the given day (0 if not running, 1 if running)
-\item StateHoliday - an indicator of whether the given day was a state holiday (0 if not a state holiday, a if public holiday, b if eastern holiday, c if christmas)
-\item SchoolHoliday - an indicator of whether the store was affected by a nearby school holiday on the given day (0 if not affected, 1 if affected)
-\end{itemize}
+The following table describes fields in ``test.csv'' and ``training.csv'':
 
-The following describes fields in store.csv:
-\begin{itemize}
-\item Store - the unique id for each store (positive integer ranging from 1 to 1115)
-\item StoreType - the store's model (4 types: a, b, c, d)
-\item CompetitionDistance - the distance in meters to the nearest competing store (positive number franging from 20.0 to 75860.0, and NA's if no competitors)
-\item Assortment - the store's assortment level (a = basic, b = extra, c = extended)
-\item CompetitionOpenSinceMonth - the approximate month of the time when the nearest competing store opened (positive integer ranging from 1 to 12, and NA's if no competitors)
-\item CompetitionOpenSinceYear - the approximate year of the time when the nearest competing store opened (positive integer ranging from 1900 to 2015, and NA's if no competitors)
-\item Promo2 - an indicator of whether the store was participating in a promotion that runs over a period of time  (0 if not participating, 1 if participating)
-\item Promo2SinceWeek - the approximate week of year when the store started to participate in promo2 (positive integer ranging from 1 to 50, and NA's if no promo2)
-\item Promo2SinceYear - the approximate year of time when the store started to participate in promo2 (positive integer ranging from 2009 to 2015, and NA's if no promo2)
-\item PromoInterval - the months when the promo2 started (comma-separated list of string months. ex. ``Feb,May,Aug,Nov'')
-\end{itemize}
+\begin{tabular}{| c | L{4cm} |}
+  \hline
+  Store & the unique id for each store (positive integer ranging from 1 to 1115) \\ \hline
+  DayOfWeek & the day of week (positive integer ranging from 1 to 7 where 1, 2, ..., 7 correspond to Monday, Tuesday, ..., Sunday) \\ \hline
+  Date & the date (string of format YYYY¬≠MM¬≠DD) \\ \hline
+  Sales & the total amount of revenue for this given day (positive number between 0 and 41551). This value is what needs to be predicted, so only exists in ``training.csv''. \\ \hline
+  Customers & the number of customers on the given day. This also only exists in ``training.csv''. \\ \hline
+  Open & an indicator of whether the store was open on the given day (0 if closed, 1 if open) \\ \hline
+  Promo & an indicator of whether the store was running a promotion on the given day (0 if not running, 1 if running) \\ \hline
+  StateHoliday & an indicator of whether the given day was a state holiday (0 if not a state holiday, a if public holiday, b if eastern holiday, c if christmas) \\ \hline
+  SchoolHoliday & an indicator of whether the store was affected by a nearby school holiday on the given day (0 if not affected, 1 if affected) \\ \hline
+\end{tabular}
+
+The following table describes fields in ``store.csv'':
+
+\begin{tabular}{| c | L{3.5cm} |}
+  \hline
+  Store & the unique id for each store (positive integer ranging from 1 to 1115) \\ \hline
+  StoreType & the store's model (4 types: a, b, c, d) \\ \hline
+  Assortment & the store's assortment level (a = basic, b = extra, c = extended) \\ \hline
+  Promo2 & an indicator of whether the store was participating in a promotion that runs over a period of time  (0 if not participating, 1 if participating) \\ \hline
+  Promo2SinceWeek & the approximate week of year when the store started to participate in promo2 (positive integer ranging from 1 to 50, and NA's if no promo2) \\ \hline
+  Promo2SinceYear & the approximate year of time when the store started to participate in promo2 (positive integer ranging from 2009 to 2015, and NA's if no promo2) \\ \hline
+  PromoInterval & the months when the promo2 started (comma \\ \hline
+\end{tabular}
+
+\section{Methods}
+We first worked on preprocessing the raw data given by Rossmann.
 
 \subsection{Preprocessing}
 
-For preprocessing, we have done the followings:
-\begin{itemize}
-\item We merged train.csv and store.csv by ``Store'' because we can predict daily sales better with more data related to the sales. We also merged test.csv and store.csv by ``Store''.
-\item We removed ``Customers'' field from the training data because it does not exist in the test data so we cannot use ``Customers'' to predict ``Sales''.
-\item For ``CompetitionDistance'' with NA values, we replaced NA with 1000000. Since 1000000 is much more bigger than any other distances, replacing NA with the number simulated an effect of having no competitor. In the similar way, we filled missing values for ``CompetitionOpenSinceYear'' and ``CompetitionOpenSinceMonth''.
-\item Similarly, for ``Promo2SinceYear'' with NA valus, we replaced NA with 1990 to simulate the effect of having no promo2.
-\item We splitted ``Date'' field into three fields: ``year'', ``month'', and ``day''.
-\item We computed average sales for each store to create a new field ``Average.Sales''.
-\item We noticed the feature ``CompetitionDistance'' is highly skewed to right. For the sake of linear regression, we took log transformation on the feature ``CompetitionDistance'' to create a new field ``LogCompetitionDistance'' to make sure that the relationship between explanatory variables and dependent variable is approximately linear.
-\end{itemize}
+For preprocessing, we have done the followings using our R codes in ``Section A: Pre-processing'' of the supplementary file ``final-project.R''.
+
+We first merged ``train.csv'' and ``store.csv'' by ``Store'' because we can predict daily sales better with more data related to the sales. We also merged ``test.csv'' and ``store.csv'' by ``Store''. \\
+Then, We removed ``Customers'' field from the training data because it does not exist in the test data so we cannot use ``Customers'' to predict ``Sales''. \\
+For ``CompetitionDistance'' with NA values, we replaced NA with 1000000. Since 1000000 is much more bigger than any other distances, replacing NA with the number simulated an effect of having no competitor. In the similar way, we filled missing values for ``CompetitionOpenSinceYear'' and ``CompetitionOpenSinceMonth''. \\
+Similarly, for ``Promo2SinceYear'' with NA valus, we replaced NA with 1990 to simulate the effect of having no promo2. \\
+We splitted ``Date'' field into three fields: ``year'', ``month'', and ``day'' to better account for the effects each components of date have. \\
+We computed average sales for each store to create a new field ``Average.Sales''. This variable seemed to be an indicator of how well a store will perform in future. This makes sense because a store with a strong past performance is likely to perform well in future. \\
+We noticed the feature ``CompetitionDistance'' is highly skewed to right. For the sake of linear regression, we took log transformation on the feature ``CompetitionDistance'' to create a new field ``LogCompetitionDistance'' to make sure that the relationship between explanatory variables and dependent variable is approximately linear.
 
 
-\subsection{Exploratory Data Analysis}
+\subsection{EDA (Exploratory Data Analysis)}
 To check any distinctive relationships between variables before applications of prediction models, we drew a pearson correlation coefficient plot using R corrplot library. In the plot, we witnessed several interesting behaviors. We decided to explore deeper on the features: ``DayOfWeek'' and ``CompetitionDistance''.
 - ``DayOfWeek'' and ``Sales'' are negatively correlated. This implies that, as ``DayOfWeek'' approaches to Sunday, sales would decrease because drugstores would mostly close on Sunday. 
 
@@ -91,10 +102,9 @@ To check any distinctive relationships between variables before applications of 
 
 % TODO:add the correlation plot here. 
 
-
-
-\section{Methods}
 We started off by setting a benchmark to obtain a baseline for the prediction. Then, we took 3 different approaches to outperform the benchmark and former model.  
+
+Our R codes for EDA are in ``Section B: EDA'' of the supplementary file ``final-project.R''.
 
 \subsection{5-fold Cross Validation}
 To generalize our predictions to limit problems of overfitting on the training set, we decided to ramdomly partition the original training observations into 5 equal sized subsamples. The training set is comprised of 4 equal sized subsamples and the rest as the validation set. For the purpose of reproducibility and comparison of the predictive powers of different models, we set the seed (with a value of 42). Our general process would be as the following:
@@ -104,21 +114,28 @@ To generalize our predictions to limit problems of overfitting on the training s
 4. Submit on Kaggle website to get the test error rate.
 5. Compare the average validation error rate and the test error rate among differnent models.
 
+Our R codes for 5-fold cross validation are in ``Section C: Cross Validation'' of the supplementary file ``final-project.R''.
 
 \subsection{Error Metric}
 As the metrics that Kaggle uses to compute test error is the Root Mean Squared Percentage Error (RMSPE), we used the same metrics to compute our validation error. It's the following:
 
 $RMSPE = \sqrt{\frac{1}{n} \sum {(\frac{y_i - \hat y_i}{y_i})}^2}$
 
-where ${y_i}$ is a store's sales on a single day, ${yhat_i}$ is the daily sales prediction for the store on the day, and ${n}$ is the number of (store, date) pairs in the data set. 
+where ${y_i}$ is a store's sales on a single day, ${yhat_i}$ is the daily sales prediction for the store on the day, and ${n}$ is the number of (store, date) pairs in the data set.
+
+Our R codes used to compute error rates are in ``Section B: Utility Functions'' of the supplementary file ``final-project.R''.
 
 \subsection{Benchmark}
 Our benchmark is simply the average sales of each store. Precisely, we predict daily sales of a store for a day by the average daily sales the store had in the training data set. This method does not account for many factors (whether the day was holiday, whether the store was running a promotion on the day, etc), so we expect its error rate to have a higher error rate than any other methods we applied.
+
+Our R codes for benchmark are in ``Section D: Benchmark'' of the supplementary file ``final-project.R''.
 
 \subsection{Linear Regression}
 Linear regression is an approach for modeling the relationship between dependent variable Y (in our case, ``Sales'') and explanatory variables X. To apply linear regression on the data, we decided to use R's $lm$ function. $lm$ is an implemention of multivariate linear regression. If we supply $Y \sim X$ as the input, $lm$ builds and returns a model that can be used to predict $Y$ using $X$. Under the hood, it basically solves the normal equation $\beta = (X^T X)^{-1} X^T Y$.
 
 We first built linear model with all available features (DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, CompetitionOpenSinceMonth, CompetitionOpenSinceYear, Promo2, Promo2SinceYear, Average.Sales, LogCompetitionDistance, CompetitionDistance, day, month, year) using the training set. Then, we applied the linear model on validation set.
+
+Our R codes for linear regression are in ``Section E: Linear Model'' of the supplementary file ``final-project.R''.
 
 \subsubsection{Feature Selection}
 Then, we did feature selection to reduce complexity of linear model. Before working on feature select, we took a look at the resulting lm with R function $summary(lm)$ to get some general idea of how important each variable is. All features except CompetitionDistance, CompetitionOpenSinceMonth, CompetitionOpenSinceYear, Promo2, Promo2SinceYear were significant with p-value less than 0.05.
@@ -126,13 +143,12 @@ Then, we did feature selection to reduce complexity of linear model. Before work
 \subsubsection{Feature Selection-Backward Elimination}
 For feature selection, we first applied backward elimination by repeatedly removing features with the highest p-value until no feature has p-value higher than 0.05. As the result, we obtained DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, Average.Sales, LogCompetitionDistance, day, month, year. Then, we built linear model with the selected variables using the training set and applied linear regression with the model on the validation set.
 
+Our R codes for linear regression with backward elimination are in ``Section F: Variable Selection-Backward Elimination'' of the supplementary file ``final-project.R''.
+
 \subsubsection{Feature Selection-Akaike Information Criterion}
 Another approach we had for feature selection was using Akaike information criterion (AIC). AIC provides a meature of relative quality of models with the equation $AIC = 2k - 2 ln(L)$ where $k$ is the number of estimated paramters in the model and $L$ is the value of likelihood function. We performed AIC by using R function $stepAIC$.
 
-\subsubsection{Feature Engineering-Lasso}
-
-\subsubsection{Feature Engineering-Ridge}
-
+Our R codes for linear regression with AIC are in ``Section G: Variable Selection-AIC'' of the supplementary file ``final-project.R''.
 
 \subsection{Random Forest}
 Random Forest is an ensemble learning method that constructs decisions tree using training set. By aggregating many decision trees, Random Forest can make predictions while avoiding overfitting because it uses an ensemble of regression trees over different samples of the data. Here is our Random Forest Regression steps: \\
@@ -146,6 +162,8 @@ In particular, we used H2O’s RandomForest package to carry out the training an
 
 To find the best hyperparamters, we tried different values of hyperparamter and tested the results on validation set using for loops.
 
+Our R codes for random forest are in ``Section H: Random Forest'' of the supplementary file ``final-project.R''.
+
 \subsection{Gradient Boosting}
 The similarity between Random Forest and Gradient Boosting is that both generate decision trees. However, Random forest uses bootstrapping method for training while Gradient Boosting builds decision tree over the residuals. In other words, Gradient Boosting Tree generates the decision tree as it optimizes on a proper loss function (   ). This refers that we can establish our own loss function for optimization, while we couldn't do in Random Forest. We set our loss function to be our error metric, RMPSE. Our decision trees here are regression trees. Each regression tree divides the data point at each non-leaf node according to a constraint on a feature. The leaf node value of a data point decides its score, and a data point is predicted by averaging the scores of the leaf node it belongs to.
 
@@ -153,31 +171,42 @@ In particular, we used R's xgboost package. XGBoost also known as Extreme Gradie
 
 at most d times, since we might have to try up to d values for Xj before finding a solution
 
+Our R codes for gradient boosting are in ``Section I: Gradient Boosting'' of the supplementary file ``final-project.R''.
+
+\section{Supplementary Methods}
+For anyone who would like to reproduce results in this paper, we provided datasets and R codes we used in tar file ``supplementary-methods.tar.gz''.
+
+To untar this tar file, please run the following command: ``tar xvfz somefilename.tar.gz''.
+
+This tar file should contain ``final-project.R'', ``data/store.csv'', ``data/test.csv'', and ``data/train.csv''.
+
+``final-project.R'' contains all R codes used in this project, and it is referenced many time in ``Methods'' section of this paper. All files under folder ``data/'' are described in ``Description of Datasets'' subsection in ``Introduction'' section of this paper.
+
 \section{Results}
 \subsection{Benchmark}
 Our benchmark is the average sales of each store. The error rate for benchmark was 0.106209 on validation set and 0.25789 on the test set (when submitted to Kaggle website). This is our baseline model. Our goal is to improve our prediction by outperforming the benchmark by large degree at the end. 
 
-\subsection{Linear Regression}
-The error rates of our different linear models are following:
-
-TODO: TABLE
-                                    Validation error rate         Test error rate
-Full Model (all features)
-Reduced Model (Backward Elimination)
-Reduced Model (Forward-Backward Elimination)
- 
-
-For linear model with all features (full model), the error rate was 0.09101 on a validation set and 0.21036 on the test set.
-
-For linear model with backward elimination (reduced model), the error rate was 0.09108 on a validation set and 0.20988 on the test set.
-
-For linear model with AIC (reduced model), the error rate was 0.091006 on a validation set and 0.21039 on the test set.
-
-
-We also wanted to check which features were actually removed by the feature elimination methods. 
+\subsection{Linear Model}
+The error rates of our different linear models on validation and test sets are the following:
 
 TODO blah blahblahblah features blachblashblash 
 TODO http://cseweb.ucsd.edu/~jmcauley/cse255/reports/fa15/022.pdf
+
+\begin{center}
+    \begin{tabular}{| l | l | l |}
+      \hline
+       & Validation & Test \\ \hline
+      Linear Regression \\
+      (Full Model) & 0.09101 & 0.21036 \\ \hline
+      Linear Regression \\
+      (Backward Elimination) & 0.09108 & 0.20988 \\ \hline
+      Linear Regression \\
+      (AIC) & 0.091006 & 0.21039 \\ \hline
+      \hline    
+    \end{tabular}
+\end{center}
+
+Through variance selection, the following features CompetitionDistance, CompetitionOpenSinceMonth, CompetitionOpenSinceYear, Promo2, Promo2SinceYear were insignificant so were removed.
 
 \subsection{Random Forest}
 The major parater we tune for Random Forest is the depth and number of trees. We used 5 fold cross validation to compute average RMSPE while varying the depth and number of trees. The plot for varying depth is shown below:
@@ -205,24 +234,29 @@ The effects of tuning the step size are visualized in the following graph:
 As the error rate shows, Gradient Boosting model gives us the most predictive power by far. We were able to achieve test error rate (RMPSE) of 0.13234.
 
 
+\section{Supplementary Methods}
 
 \section{Discussion}
 To visualize the overall performance of our different models, we organized the resulting error rates into a simple table. 
 
+The error rates of our different models on validation and test sets are the following:
 % TODO: make an overall error rate table
 \begin{center}
     \begin{tabular}{| l | l | l |}
       \hline
-      & Validation Error & Test Error \\ \hline
-    BenchMark & Min Temp & Max Temp \\ \hline
-    Linear Regression-Backward & 11C & 22C. \\ \hline
-    Linear Regression-AIC & 9C & 19C , across many northern regions. Clear spells \\ \hline
-    Random Forest & 10C & 21C  still linger for the morning.  \\ \hline
-    Gradient Boosting & 10C & 21C  still linger for the morning.  \\
-    \hline    
+       & Validation & Test \\ \hline
+      Benchmark & 0.106209 & 0.25789  \\ \hline
+      Linear Regression \\
+      (Full Model) & 0.09101 & 0.21036 \\ \hline
+      Linear Regression \\
+      (Backward Elimination) & 0.09108 & 0.20988 \\ \hline
+      Linear Regression \\
+      (AIC) & 0.091006 & 0.21039 \\ \hline
+      Random Forest & 0.020639 & 0.14411.  \\ \hline
+      Gradient Boosting & 0.01734 & 0.13234  \\ \hline
+      \hline    
     \end{tabular}
 \end{center}
-
 
 Although we readily outperformed our benchmark, as we expected, linear regression model did not perfrom very well because of the non-linearity of the data. However, we checked the sharp increase from linear regression to Random Forest model. we confirmed that tree based models can approximate functions with any ``non-linear shape'', whereas linear models can produce functions with a ``linear shape'' with respect to a chosen set of features. 
 
@@ -231,132 +265,6 @@ There were TODO features removed by feature selection method. We think TODO
 As a result, we were able to achieve TODO RMPSE using gradient boosting to predict Rossmann drugstore sales without using customer number information. Although boosting performed very well for this dataset, we witnessed it's harder to tune parameters and took longer time to train the data compared to Random Forest. While the number of tree is only usually tuned to train Random Forest, Gradient Boosting model requires several parameters to be tuned. In addition, tuning such parameters and comparing corresponding performances requires much more time than computing Random Forest algorithm. Also, Random Forest does not easily overfit. Often, many statisticans say Random Forests does not overfit. The testing performance of Random Forests does not decrease (due to overfitting) as the number of trees increases (Breiman). However, Boosting algorithm is more robust to overfitting because it relies on every single data point and tries to find optimal linear combination of regression trees given the train dataset. Thus, it requires proper tuning to avoid it. As shown in the table, it took more than 5 hours to train Gradient Boosting model, and compute different error rates according to different parameters over 5-fold cross validation. We could have potentially increased the size of the number of tree and get better precision, at the risk of overfitting and longer training time which is a tradeoff between time and accuracy.
 
 In conclusion, we can check that our well-tuned gradient boosting model outperformed Random Forest. 
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Now we're going to cite somebody.  Watch for the cite tag.
-Here it comes~\cite{Chaum1981,Diffie1976}.  The tilde character (\~{})
-in the source means a non-breaking space.  This way, your reference will
-always be attached to the word that preceded it, instead of going to the
-next line.
-
-\section{Supplementary Methods}
-\subsection{First SubSection}
-
-Here's a typical figure reference.  The figure is centered at the
-top of the column.  It's scaled.  It's explicitly placed.  You'll
-have to tweak the numbers to get what you want.\\
-
-% you can also use the wonderful epsfig package...
-\begin{figure}[t]
-\begin{center}
-\begin{picture}(300,150)(0,200)
-\put(-15,-30){\special{psfile = fig1.ps hscale = 50 vscale = 50}}
-\end{picture}\\
-\end{center}
-\caption{Wonderful Flowchart}
-\end{figure}
-
-This text came after the figure, so we'll casually refer to Figure 1
-as we go on our merry way.
-
-\subsection{New Subsection}
-
-It can get tricky typesetting Tcl and C code in LaTeX because they share
-a lot of mystical feelings about certain magic characters.  You
-will have to do a lot of escaping to typeset curly braces and percent
-signs, for example, like this:
-``The {\tt \%module} directive
-sets the name of the initialization function.  This is optional, but is
-recommended if building a Tcl 7.5 module.
-Everything inside the {\tt \%\{, \%\}}
-block is copied directly into the output. allowing the inclusion of
-header files and additional C code." \\
-
-Sometimes you want to really call attention to a piece of text.  You
-can center it in the column like this:
-\begin{center}
-{\tt \_1008e614\_Vector\_p}
-\end{center}
-and people will really notice it.\\
-
-\noindent
-The noindent at the start of this paragraph makes it clear that it's
-a continuation of the preceding text, not a new para in its own right.
-
-
-Now this is an ingenious way to get a forced space.
-{\tt Real~$*$} and {\tt double~$*$} are equivalent. 
-
-Now here is another way to call attention to a line of code, but instead
-of centering it, we noindent and bold it.\\
-
-\noindent
-{\bf \tt size\_t : fread ptr size nobj stream } \\
-
-And here we have made an indented para like a definition tag (dt)
-in HTML.  You don't need a surrounding list macro pair.
-\begin{itemize}
-\item[]  {\tt fread} reads from {\tt stream} into the array {\tt ptr} at
-most {\tt nobj} objects of size {\tt size}.   {\tt fread} returns
-the number of objects read. 
-\end{itemize}
-This concludes the definitions tag.
-
-\subsection{How to Build Your Paper}
-
-You have to run {\tt latex} once to prepare your references for
-munging.  Then run {\tt bibtex} to build your bibliography metadata.
-Then run {\tt latex} twice to ensure all references have been resolved.
-If your source file is called {\tt usenixTemplate.tex} and your {\tt
-  bibtex} file is called {\tt usenixTemplate.bib}, here's what you do:
-{\tt \small
-\begin{verbatim}
-latex usenixTemplate
-bibtex usenixTemplate
-latex usenixTemplate
-latex usenixTemplate
-\end{verbatim}
-}
-
-
-\subsection{Last SubSection}
-
-Well, it's getting boring isn't it.  This is the last subsection
-before we wrap it up.
-
-
-\section{Results}
-
-\section{Supplementary Results}
-
-A polite author always includes acknowledgments.  Thank everyone,
-especially those who funded the work. 
-
-\section{Discussion}
-
-It's great when this section says that MyWonderfulApp is free software, 
-available via anonymous FTP from
-
-\begin{center}
-{\tt ftp.site.dom/pub/myname/Wonderful}\\
-\end{center}
-
-Also, it's even greater when you can write that information is also 
-available on the Wonderful homepage at 
-
-\begin{center}
-{\tt http://www.site.dom/\~{}myname/SWIG}
-\end{center}
-
-Now we get serious and fill in those references.  Remember you will
-have to run latex twice on the document in order to resolve those
-cite tags you met earlier.  This is where they get resolved.
-We've preserved some real ones in addition to the template-speak.
-After the bibliography you are DONE.
 
 \section{References Cited}
 
@@ -382,37 +290,6 @@ Gu, Jay (Haijie). ``Using Gradient Boosted Trees to Predict Bike Sharing Demand.
 \section{Author Contributions}
 
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-Some embedded literal typset code might 
-look like the following :
-
-{\tt \small
-\begin{verbatim}
-int wrap_fact(ClientData clientData,
-              Tcl_Interp *interp,
-              int argc, char *argv[]) {
-    int result;
-    int arg0;
-    if (argc != 2) {
-        interp->result = "wrong # args";
-        return TCL_ERROR;
-    }
-    arg0 = atoi(argv[1]);
-    result = fact(arg0);
-    sprintf(interp->result,"%d",result);
-    return TCL_OK;
-}
-\end{verbatim}
 }
 
 
