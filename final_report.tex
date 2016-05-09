@@ -33,7 +33,7 @@
 
 
 \section{Abstract}
-Our project attempted to apply linear regression and various machine learning techniques to a real-world problem of predicting drug store sales. Rossmann, Germany's second-largest drug store chain, has provided past sales information of 1115 Rossmann stores located across Germany. We preprocessed, feature-engineered the data, and examined 4 different statistical / machine learning analysis for forecasting sales of each store: multivariate linear regression with various feature selection methods, random forest, and gradient boosting. Then, we compared the methods' predictive power by computing Root Mean Square Percentage Error (RMSPE). We found that Gradient Boosting model performed the best with a RMSPE score of 0.13234.
+Our project attempted to apply linear regression and various machine learning techniques to a real-world problem of predicting drug store sales. Rossmann, Germany's second-largest drug store chain, has provided past sales information of 1115 Rossmann stores located across Germany. We preprocessed, feature-engineered the data, and examined 4 different statistical / machine learning analysis for forecasting sales of each store: multivariate linear regression with various feature selection methods, random forest, and gradient boosting. Then, we compared the methods' predictive power by computing Root Mean Square Percentage Error (RMSPE). We found that Gradient Boosting model performed the best with a RMSPE score of 0.13234 on the test data set.
 
 \section{Introduction}
 The objective of this project is to predict 6 weeks of daily sales for 1115 Rossmann stores located across Germany using the data which was provided by Rossmann through Kaggle. The motivation of this project is the following: by reliably predicting daily sales, store managers may decrease operational costs, and create effective staff schedules (ex. by assigning more staffs during busy days) (``Rossmann Store Sales''). Also, we would like to identify which type of techniques be effective in a real-world sales prediction task. Before building any regression or machine learning models for the prediction, we attempted to define which features are significant to determine daily sales of stores. By performing exploratory data analysis, we found how some features such as promotion and competitor distance affect the sales. % sounds little strange
@@ -46,10 +46,10 @@ To confirm our assumption and apply various techniques for the prediction, we fi
 
 - Gradient Boosting: We also found an useful article by Jay Gu, PhD in Machine Learning from Carnegie Mellon University, on gradient boosting regression. In his article, he asserted that, for predictive analytics, the gradient boosted tree model (GBM) is one of the most effective machine learning models. As he did, we have also witnessed a good number of winning solutions for various kaggle competitions that contain boosted tree models as a crucial component. We got the basic framework from Tianqi Chen's presentation (Chen). In his ``Bike Sharing classification prediction'', we witnessed that Gu reduces his computation time efficiently by dividing out certain features to seperately train models. He later combines the predictions of these models to calculate weighted sums for binary classification (Gu). We consider that his seperate training of models might force him to also tune hyperparameters seperately which would worsen his runtime efficiency. For our regression task, since we have to direcly predict the number of sales, we decided to not seperately train Gradient Boosting models, but increase our time efficieny by using R's `XGBoost` library to perform parallelized computation which enables faster cross validations and more hyperparameter tuning. 
 
-
 \subsection{Description of Datasets}
 Data sets are given by Rossmann through Kaggle. There are three files: ``test.csv'', ``train.csv'', and ``store.csv''. ``train.csv'' contains 1017209 observed daily sales of different stores from 2013 to 2015. ``store.csv'' contains supplementary information for each store (41088 lines because there are 41088 stores). ``train.csv'' and ``store.csv'' both contain Store id that we can use to join the train and store data sets. Finally, ``test.csv'' has 41088 lines of daily sales of different stores but the value of Sales column is omitted. We are expected to predict the value of Sales column for the test set (``test.csv'') by using the training set (``train.csv'') and store data (``store.csv'') (``Rossmann Store Sales'').
 
+\newpage
 The following table describes fields in ``test.csv'' and ``training.csv'':
 
 \begin{tabular}{| c | L{4cm} |}
@@ -64,6 +64,9 @@ The following table describes fields in ``test.csv'' and ``training.csv'':
   StateHoliday & an indicator of whether the given day was a state holiday (0 if not a state holiday, a if public holiday, b if eastern holiday, c if christmas) \\ \hline
   SchoolHoliday & an indicator of whether the store was affected by a nearby school holiday on the given day (0 if not affected, 1 if affected) \\ \hline
 \end{tabular}
+
+
+\hfill \break
 
 The following table describes fields in ``store.csv'':
 
