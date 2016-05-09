@@ -2,6 +2,8 @@
 \documentclass[letterpaper,twocolumn,11pt]{article}
 \usepackage{usenix,epsfig,endnotes}
 \usepackage{array}
+\usepackage[usenames, dvipsnames]{color}
+
 \newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
@@ -106,8 +108,6 @@ To check any distinctive relationships between variables before applications of 
   \includegraphics[scale=0.32]{img/compDist.png}
 \end{enumerate}
 
-% TODO:add the correlation plot here. 
-
 \textit{Our R codes for EDA are in ``Section B: EDA'' of the supplementary file ``final-project.R''.}
 
 \subsection{5-fold Cross Validation}
@@ -196,7 +196,6 @@ Our benchmark is the average sales of each store. The error rate for benchmark w
 \subsection{Linear Model}
 The error rates of our different linear models on validation and test sets are the following:
 
-
 \begin{center}
     \begin{tabular}{| l | l | l |}
       \hline
@@ -211,10 +210,35 @@ The error rates of our different linear models on validation and test sets are t
     \end{tabular}
 \end{center}
 
-TODO blah blahblahblah features blachblashblash 
-TODO http://cseweb.ucsd.edu/~jmcauley/cse255/reports/fa15/022.pdf
+Through feature selection, we found that the following features ``CompetitionDistance'', ``CompetitionOpenSinceMonth'', ``CompetitionOpenSinceYear'', ``Promo2'', ``Promo2SinceYear'' were insignificant. This is evident in the following chart generated using output from R code $summary(lm_{all})$ where $lm_{all}$ is the linear model using all features (\textit{the code used here can be found in ``Section F: Linear Model'' of the supplementary file ``final-project.R''}):
 
-Through feature selection, the following features ``CompetitionDistance'', ``CompetitionOpenSinceMonth'', ``CompetitionOpenSinceYear'', ``Promo2'', ``Promo2SinceYear'' were insignificant so were removed.
+\begin{center}
+    \begin{tabular}{| l | l | l |}
+      \hline
+       & abs(t value) \\ \hline
+      Average.Sales & 1071.340 \\ \hline
+      Promo1 & 484.769 \\ \hline
+      Open & 281.084 \\ \hline
+      DayOfWeek & 215.891 \\ \hline
+      month & 188.381 \\ \hline
+      day & 70.741 \\ \hline
+      year & 56.911 \\ \hline
+      StateHoliday & 46.968 \\ \hline
+      StoreType & 40.631 \\ \hline
+      SchoolHoliday & 34.476 \\ \hline
+      Assortment & 5.091 \\ \hline
+      LogCompetitionDistance & 4.823 \\ \hline 
+      Promo2SinceWeek & 4.436 \\ \hline
+      \textcolor{red}{Promo2SinceYear} & 1.785 \\ \hline  
+      \textcolor{red}{CompetitionOpenSinceMonth} & 2.208 \\ \hline
+      \textcolor{red}{Promo2} & 1.369 \\ \hline
+      \textcolor{red}{CompetitionOpenSinceYear} & 1.183 \\ \hline
+      \textcolor{red}{CompetitionDistance} & 0.528 \\ \hline
+      \hline    
+    \end{tabular}
+\end{center}
+
+In the above chart, features with low abs(t-value) are marked with red. They have p-value more than 0.05 so are insignificant.
 
 \subsection{Random Forest}
 The major parameters we tune for Random Forest are the depth and number of trees. We used 5 fold cross validation to compute average RMSPE while varying the depth and number of trees. The learning curve for increasing depth is shown below:
