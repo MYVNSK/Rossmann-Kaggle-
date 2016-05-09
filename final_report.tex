@@ -84,7 +84,8 @@ We first worked on preprocessing the raw data given by Rossmann.
 
 \subsection{Preprocessing}
 
-For preprocessing, we have done the followings:
+For preprocessing, we have done the followings using our R codes in ``Section A: Pre-processing'' of the supplementary file ``final-project.R''.
+
 \begin{itemize}
 \item We merged train.csv and store.csv by ``Store'' because we can predict daily sales better with more data related to the sales. We also merged test.csv and store.csv by ``Store''.
 \item We removed ``Customers'' field from the training data because it does not exist in the test data so we cannot use ``Customers'' to predict ``Sales''.
@@ -97,7 +98,7 @@ For preprocessing, we have done the followings:
 
 % TODO:add the CompetitionDistance graph here. 
 
-\subsection{Exploratory Data Analysis}
+\subsection{EDA (Exploratory Data Analysis)}
 To check any distinctive relationships between variables, we drew a pearson correlation coefficient plot using corrplot library. There are several interesting facts we captured. 
 - ``DayOfWeek'' and ``Sales'' are negatively correlated. This implies that, as ``DayOfWeek'' approaches to Saturday and Sunday, sales would decrease because most drugstores would close on these days. 
 - ``LogCompetitionDistance'' and ``Sales'' are negatively correlated. In other words, lower distance to the competitor implies slightly higher sales. We assume this could occur because stores with a close distance to the competitor are mostly located in crowded regions such as a downtown city with higher sales overall.
@@ -105,6 +106,8 @@ To check any distinctive relationships between variables, we drew a pearson corr
 % TODO:add the correlation plot here. 
 
 We started off by setting a benchmark to obtain a baseline for the prediction. Then, we took 3 different approaches to outperform the benchmark and former model.  
+
+Our R codes for EDA are in ``Section B: EDA'' of the supplementary file ``final-project.R''.
 
 \subsection{5-fold Cross Validation}
 To generalize our predictions to limit problems of overfitting on the training set, we decided to ramdomly partition the original training observations into 5 equal sized subsamples. The training set is comprised of 4 equal sized subsamples and the rest as the validation set. For the purpose of reproducibility and comparison of the predictive powers of different models, we set the seed (with a value of 42). Our general process would be as the following:
@@ -114,21 +117,28 @@ To generalize our predictions to limit problems of overfitting on the training s
 4. Submit on Kaggle website to get the test error rate.
 5. Compare the average validation error rate and the test error rate among differnent models.
 
+Our R codes for 5-fold cross validation are in ``Section C: Cross Validation'' of the supplementary file ``final-project.R''.
 
 \subsection{Error Metric}
 As the metrics that Kaggle uses to compute test error is the Root Mean Squared Percentage Error (RMSPE), we used the same metrics to compute our validation error. It's the following:
 
 $RMSPE = \sqrt{\frac{1}{n} \sum {(\frac{y_i - \hat y_i}{y_i})}^2}$
 
-where ${y_i}$ is a store's sales on a single day, ${yhat_i}$ is the daily sales prediction for the store on the day, and ${n}$ is the number of (store, date) pairs in the data set. 
+where ${y_i}$ is a store's sales on a single day, ${yhat_i}$ is the daily sales prediction for the store on the day, and ${n}$ is the number of (store, date) pairs in the data set.
+
+Our R codes used to compute error rates are in ``Section B: Utility Functions'' of the supplementary file ``final-project.R''.
 
 \subsection{Benchmark}
 Our benchmark is simply the average sales of each store. Precisely, we predict daily sales of a store for a day by the average daily sales the store had in the training data set. This method does not account for many factors (whether the day was holiday, whether the store was running a promotion on the day, etc), so we expect its error rate to have a higher error rate than any other methods we applied.
+
+Our R codes for benchmark are in ``Section D: Benchmark'' of the supplementary file ``final-project.R''.
 
 \subsection{Linear Regression}
 Linear regression is an approach for modeling the relationship between dependent variable Y (in our case, ``Sales'') and explanatory variables X. To apply linear regression on the data, we decided to use R's $lm$ function. $lm$ is an implemention of multivariate linear regression. If we supply $Y \sim X$ as the input, $lm$ builds and returns a model that can be used to predict $Y$ using $X$. Under the hood, it basically solves the normal equation $\beta = (X^T X)^{-1} X^T Y$.
 
 We first built linear model with all available features (DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, CompetitionOpenSinceMonth, CompetitionOpenSinceYear, Promo2, Promo2SinceYear, Average.Sales, LogCompetitionDistance, CompetitionDistance, day, month, year) using the training set. Then, we applied the linear model on validation set.
+
+Our R codes for linear regression are in ``Section E: Linear Model'' of the supplementary file ``final-project.R''.
 
 \subsubsection{Feature Selection}
 Then, we did feature selection to reduce complexity of linear model. Before working on feature select, we took a look at the resulting lm with R function $summary(lm)$ to get some general idea of how important each variable is. All features except CompetitionDistance, CompetitionOpenSinceMonth, CompetitionOpenSinceYear, Promo2, Promo2SinceYear were significant with p-value less than 0.05.
@@ -136,8 +146,12 @@ Then, we did feature selection to reduce complexity of linear model. Before work
 \subsubsection{Feature Selection-Backward Elimination}
 For feature selection, we first applied backward elimination by repeatedly removing features with the highest p-value until no feature has p-value higher than 0.05. As the result, we obtained DayOfWeek, Open, Promo, StateHoliday, SchoolHoliday, StoreType, Assortment, Average.Sales, LogCompetitionDistance, day, month, year. Then, we built linear model with the selected variables using the training set and applied linear regression with the model on the validation set.
 
+Our R codes for linear regression with backward elimination are in ``Section F: Variable Selection-Backward Elimination'' of the supplementary file ``final-project.R''.
+
 \subsubsection{Feature Selection-Akaike Information Criterion}
 Another approach we had for feature selection was using Akaike information criterion (AIC). AIC provides a meature of relative quality of models with the equation $AIC = 2k - 2 ln(L)$ where $k$ is the number of estimated paramters in the model and $L$ is the value of likelihood function. We performed AIC by using R function $stepAIC$.
+
+Our R codes for linear regression with AIC are in ``Section G: Variable Selection-AIC'' of the supplementary file ``final-project.R''.
 
 \subsection{Random Forest}
 Random Forest is an ensemble learning method that constructs decisions tree using training set. By aggregating many decision trees, Random Forest can make predictions while avoiding overfitting because it uses an ensemble of regression trees over different samples of the data. Here is our Random Forest Regression steps: \\
@@ -151,12 +165,17 @@ In particular, we used H2O’s RandomForest package to carry out the training an
 
 To find the best hyperparamters, we tried different values of hyperparamter and tested the results on validation set using for loops.
 
+Our R codes for random forest are in ``Section H: Random Forest'' of the supplementary file ``final-project.R''.
+
 \subsection{Gradient Boosting}
 The similarity between Random Forest and Gradient Boosting is that both generate decision trees. However, Random forest uses bootstrapping method for training while Gradient Boosting builds decision tree over the residuals. In other words, Gradient Boosting Tree generates the decision tree as it optimizes on a proper loss function (   ). This refers that we can establish our own loss function for optimization, while we couldn't do in Random Forest. We set our loss function to be our error metric, RMPSE. Our decision trees here are regression trees. Each regression tree divides the data point at each non-leaf node according to a constraint on a feature. The leaf node value of a data point decides its score, and a data point is predicted by averaging the scores of the leaf node it belongs to.
 
 In particular, we used R's xgboost package. XGBoost also known as Extreme Gradient Boosting is a powerful supervised learning algorithm (). This package enables an automatic parallel computation on a single machine. For our regression task, we put ``reg:linear'' as a parameter. Our training objective here is :
 
 at most d times, since we might have to try up to d values for Xj before finding a solution
+
+Our R codes for gradient boosting are in ``Section I: Gradient Boosting'' of the supplementary file ``final-project.R''.
+
 
 \section{Supplementary Methods}
 

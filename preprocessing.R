@@ -138,7 +138,7 @@ output_to_kaggle <- function(predicted) {
   write.csv(data.frame(Id=kaggle_test$Id, Sales=predicted), "pred.csv", row.names=F)
 }
 
-####################Section C: Prepare Cross Validation #############################
+####################Section C: Cross Validation #############################
 k = 5 #Folds
 set.seed(42)
 # sample from 1 to k, nrow times (the number of observations in the data)
