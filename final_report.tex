@@ -245,15 +245,13 @@ The major parameters we tune for Random Forest are the depth and number of trees
 
 \includegraphics[scale=0.4]{img/RandomForestPerDepth.png}
 
-As the curve illustrates, we see that RMSPE does not change much after the depth of trees reaches 20. Also, we confirm that the test error rate TODO
+As the curve illustrates, we see that RMSPE does not change much after the depth of trees reaches 20.
 
 The learning curve for increasing ntrees is shown below:
 
 \includegraphics[scale=0.22]{img/RandomForestPerNtrees.png}
 
-We see that, unlike the depth of trees, the number of trees parameter does not have much impact on RMSPE (TODO).
-
-As the plot illustrates, we could see that RMSPE does not change much after the number of tree reaches TODO. Also, we could confirm that the test error rate does not increase even if the number of trees reaches as big as TODO. This is because Random Forest tree utilizes random amount of the data for training. In the algorithm, the training set for a tree is drawn by sampling with replacement.
+We see that, unlike the depth of trees, the number of trees parameter does not have much impact on RMSPE.
 
 Hence, we chose 30 as depth, 100 as ntrees to run random forest. The error rate for random forest (depth=30, ntrees=100) was 0.020639 for validation set and 0.14411 on test set.
 
@@ -273,7 +271,7 @@ As the error rate shows, Gradient Boosting model gives us the most predictive po
 To visualize the overall performance of our different models, we organized the resulting error rates into a simple table. 
 
 The error rates of our different models on validation and test sets are the following:
-% TODO: make an overall error rate table
+
 \begin{center}
     \begin{tabular}{| l | l | l |}
       \hline
@@ -293,7 +291,7 @@ The error rates of our different models on validation and test sets are the foll
 
 Although we readily outperformed our benchmark, as we expected, linear regression model did not perfrom very well because of the non-linearity of the data. However, we checked the sharp increase from linear regression to Random Forest model. we confirmed that tree based models can approximate functions with any ``non-linear shape'', whereas linear models can produce functions with a ``linear shape'' with respect to a chosen set of features. 
 
-There were TODO features removed by feature selection method. We think TODO 
+There were 5 features removed by feature selection method. We think TODO 
 
 As a result, we were able to achieve 0.13234 test error rate using gradient boosting to predict Rossmann drugstore sales. Although boosting performed very well for this dataset, we witnessed it's harder to tune parameters and took longer time to train the data compared to Random Forest. While the number of tree is only usually tuned to train Random Forest, Gradient Boosting model requires several more parameters to be well-tuned. In addition, tuning such parameters and comparing corresponding performances requires much more time than computing Random Forest algorithm. Also, Random Forest does not easily overfit. Often, many statisticans including Breiman claim Random Forests does not overfit. We actually witnessed this statement that our validation error rate of Random Forests did not increase back up (due to overfitting) as the number of trees increases (Breiman). However, Boosting algorithm is more robust to overfitting because it relies on every single data point and tries to find optimal linear combination of regression trees given the train dataset. Thus, it requires proper tuning to avoid such problem. As shown in the table, it took more than 5 hours to train Gradient Boosting model, and compute different error rates according to different parameters over 5-fold cross validation. We could have potentially increased the size of the number of tree and get better precision, at the risk of overfitting and longer training time which is a tradeoff between time and accuracy.
 
