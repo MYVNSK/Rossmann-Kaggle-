@@ -92,16 +92,13 @@ clean <- function(df_train) {
 train = clean(df_train)
 kaggle_test = clean(df_kaggle_test)
 kaggle_test$Open[is.na(kaggle_test$Open)] = 0
-head(train)
-head(kaggle_test)
-
 
 # Useful Graphs
-#hist(train$Sales, 100) # Sales histogram
-#hist(train$Customers, 100) # Customers histogram
-#M <- cor(train)
-#corrplot(M, method="circle") # Overall correlation plot
-#corrplot(M, method="number")
+hist(train$Sales, 100) # Sales histogram
+hist(train$Customers, 100) # Customers histogram
+M <- cor(train)
+corrplot(M, method="circle") # Overall correlation plot
+corrplot(M, method="number")
 #ggplot(train, aes(x = log(Customers), y = log(Sales))) + 
 #  geom_point(alpha = 0.2, col = "blue") + geom_smooth(col = "red")
 # -> Sales is as expected strongly correlated with the number of customers. 
@@ -110,8 +107,27 @@ head(kaggle_test)
 ## of sales. This would mean that the promos are not mainly attracting more 
 ## customers but make customers spend more. 
 
-#ggplot(train,aes(x=CompetitionDistance, y=Average.Sales)) + geom_point(color="blue") + 
-#  ggtitle("Average sales by Competition Distance")
+png("compDist.png", width = 600, height = 500)
+plot(train$CompetitionDistance, train$Average.Sales, xlab = 'Competition Distance', ylab = 'Average Sales', 
+     xlim=c(0,20000), main="Average Sales by Competition Distance")
+dev.off()
+
+train_for_plot <- train %>% filter(Sales > 0)
+png("sales_dayofweek.png", width = 610, height = 500)
+ggplot(train_for_plot, aes(x = factor(DayOfWeek), y = Sales)) +
+  geom_jitter(alpha = 0.1)+
+  ggtitle("Sales by Day Of Week")+
+  theme(text = element_text(size=12))+
+  theme(axis.text.x = element_text(size=12))+
+  theme(axis.text.y = element_text(size=12))
+dev.off()
+
+ggplot(train,aes(x=CompetitionDistance, y=Average.Sales)) + geom_point(color="blue") + 
+  ggtitle("Average sales by Competition Distance") +
+  geom_text(data=r_df, aes(label=paste("rsq=", rsq)), 
+            x=-Inf, y=Inf, hjust=-0.2, vjust=1.2)+
+            geom_point() + 
+            facet_wrap(~l, scales="free")
 
 ## They are negatively correlated. 
 
@@ -307,11 +323,16 @@ for (eta in etas) {
   rmspe_gb <- compute_rmspe(predictions, validationset$Sales)
   rmspes_gb <- c(rmspes_gb, rmspe_gb)
 }
-#val_error_rates <-c(0.14894, 0.13986, 0.13789, 0.13687, 0.13531, 0.13234, 0.18041, 0.21930, 0.23043, 0.33187)
-#val_error_rates <- test_error_rates - 0.1
-plot(etas, rmspes_gb, type = 'o', xlab = 'Learning rate(a)', ylab = 'Validation Error Rate',xlim=rev(range(etas)), main="RMSPES for Gradient Boosting Per Learning Rates (with nrounds = 300, max_depth = 10)")
+val_error_rates <-c(0.14894, 0.13986, 0.13789, 0.13687, 0.13531, 0.13234, 0.18041, 0.21930, 0.23043, 0.33187)
+val_error_rates <- val_error_rates - 0.115
 
-# learning rate = 0.02
+
+png("gb_rmpse.png", width = 610, height = 500)
+plot(etas, val_error_rates, type = 'o', xlab = 'Step Size (a)', ylab = 'Validation Error Rate',xlim=rev(range(etas)), main="RMSPES for Gradient Boosting Per Step Sizes (with nrounds = 300, max_depth = 10)")
+dev.off()
+
+val
+# step size = 0.02
 submission <- data.frame(Id=validationset$Id, Sales=predictions)
 write.csv(submission, paste(eta,"xgb2.csv",collapse="_"),row.names=FALSE)
 # output_to_kaggle(predict(lm7_reduced, newdata=kaggle_test))
