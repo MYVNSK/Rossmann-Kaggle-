@@ -141,7 +141,7 @@ ggplot(train,aes(x=CompetitionDistance, y=Average.Sales)) + geom_point(color="bl
 ## -> There are also stores that have no zeros in their sales. These are the exception 
 ## since they are opened also on sundays / holidays. The sales of those stores on sundays are particularly high:
 
-####################Section B: Utility Functions ##############################
+####################Section C: Utility Functions ##############################
 # rmspe
 compute_rmspe <- function(predicted, expected) {
   predicted = predicted[expected != 0]
@@ -155,7 +155,7 @@ output_to_kaggle <- function(predicted) {
   write.csv(data.frame(Id=kaggle_test$Id, Sales=predicted), "pred.csv", row.names=F)
 }
 
-####################Section C: Cross Validation #############################
+####################Section D: Cross Validation #############################
 k = 5 #Folds
 set.seed(42)
 # sample from 1 to k, nrow times (the number of observations in the data)
@@ -164,14 +164,14 @@ list <- 1:k
 trainingset <- subset(train, id %in% list[-1])
 validationset <- subset(train, id %in% c(1))
 
-#######################Section D: Benchmark ###################################
+#######################Section E: Benchmark ###################################
 # Predicting using the average sales per store
 predict_bench = validationset$Average.Sales
 rmspe_bench = compute_rmspe(predict_bench, validationset$Sales) 
 rmspe_bench # 0.106209
 # kaggle result: 0.25789
 
-######################Section E: Linear Model ##################################
+######################Section F: Linear Model ##################################
 # Fit Sales against all variables
 lm_all = lm(Sales ~ . - Sales - Store - PromoInterval, data = trainingset)
 predict_all = predict(lm_all, newdata = validationset)
@@ -179,7 +179,7 @@ rmspe_all = compute_rmspe(predict_all, validationset$Sales)  # 0.09101
 output_to_kaggle(predict(lm_all, newdata = kaggle_test)) # kaggle result: 0.21036
 
 summary(lm0)
-#############Section F: Variable Selection-Backward Elimination ###################
+#############Section G: Variable Selection-Backward Elimination ###################
 # after backward elimination
 lm_backward_elimination <- lm(formula = "Sales~DayOfWeek+Open+Promo+StateHoliday+SchoolHoliday+StoreType+Assortment+Average.Sales+LogCompetitionDistance+day+month+year"
                   , data = trainingset)
@@ -187,7 +187,7 @@ predict_backward_elimination = predict(lm_backward_elimination, newdata = valida
 rmspe_backward_elimination = compute_rmspe(predict_backward_elimination, validationset$Sales)  # 0.09108
 output_to_kaggle(predict(lm_backward_elimination, newdata = kaggle_test)) # kaggle result: 0.20988
 
-######################Section G: Variable Selection-AIC ##########################
+######################Section H: Variable Selection-AIC ##########################
 lm_aic <- stepAIC(lm_all, direction="both")
 predict_aic = predict(lm_aic, newdata = validationset)
 rmspe_aic = compute_rmspe(predict_aic, validationset$Sales)  # 0.091006
@@ -206,7 +206,7 @@ rmspe7_ridge = compute_rmspe(predict_ridge, validationset$Sales)  # 0.909679
 
 # output_to_kaggle(predict(lm7_reduced, newdata=kaggle_test))
 
-########################Section H: Random Forest ###############################
+########################Section I: Random Forest ###############################
 trainingset$logSales <- log1p(trainingset$Sales)
 # Use H2O's random forest
 # start cluster with all available threads
@@ -271,25 +271,26 @@ for (ntreesParam in ntreesParams) {
     return (pred)
   }
   predicted_rf = predict_rf(validationset)
-  rmspe_rf = compute_rmspe(predicted_rf, validationset$Sales) # 0.020639
+  rmspe_rf = compute_rmspe(predicted_rf, validationset$Sales)
   rmspes = c(rmspes, rmspe_rf)
 }
 rmspes
 # [1] 0.04380550 0.03827142 0.04033160 0.04180587 0.03938701 0.03984499 0.03992669 0.03937519
 # [9] 0.03971109 0.03973975 0.03819765 0.03963958 0.03933893 0.03886010 0.03987306 0.03928793
 # [17] 0.03907073 0.03898074 0.03906581 0.03846685
-plot(ntreesParams, rmspes, main="RMSPES for Random Forest Per ntrees (with max_depth=10")
+plot(ntreesParams, rmspes, main="RMSPES for Random Forest Per ntrees\n(with max_depth=10)", cex.lab=2, cex.axis=2, cex.main=2, cex.sub=2)
 
 
 # Restore trainingset to how it was before
 trainingset <- subset(trainingset, select = -c(logSales))
 
+# validation error: 0.020639 (depth=30, ntrees=100)
 write.csv(data.frame(Id=kaggle_test$Id, Sales=predict_rf(kaggle_test)), "pred.csv", row.names=F)
 # kaggle result: 0.14411 (depth=30, ntrees=100)
 
 
 
-#########################Section I: Gradient Boosting ##########################
+#########################Section J: Gradient Boosting ##########################
 require(xgboost)
 
 # Exclude Sales == 0 (Or NaN produced), we care about only opened stores
