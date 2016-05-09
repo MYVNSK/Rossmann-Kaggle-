@@ -99,9 +99,9 @@ For preprocessing, we have done the followings:
 To check any distinctive relationships between variables before applications of prediction models, we drew a pearson correlation coefficient plot using R corrplot library. In the plot, we witnessed several interesting behaviors. We decided to explore deeper on the features: ``DayOfWeek'' and ``CompetitionDistance''.
 \begin{enumerate}
 \item ``DayOfWeek'' and ``Sales'' are negatively correlated. This implies that, as ``DayOfWeek'' approaches to Sunday, sales would decrease because drugstores would mostly close on Sunday.
-  \includegraphics[scale=0.4]{img/sales_dayofweek.png}
+  \includegraphics[scale=0.3]{img/sales_dayofweek.png}
 \item ``LogCompetitionDistance'' and ``Sales'' are negatively correlated. In other words, lower distance to the competitor implies slightly higher sales. We assume this could occur because stores with a close distance to the competitor are mostly located in crowded regions such as a downtown city with higher sales overall. To check this pattern, we drew a scatterplot of average sales by competitiondistance.
-  \includegraphics[scale=0.4]{img/compDist.png}
+  \includegraphics[scale=0.32]{img/compDist.png}
 \end{enumerate}
 
 % TODO:add the correlation plot here. 
@@ -236,7 +236,7 @@ Before comparing the results of gradient boosting with other algorithms we perfo
 
 The effects of tuning the step size are visualized in the following graph:
 
-\includegraphics[scale=0.4]{img/gb_rmpse.png}
+\includegraphics[scale=0.33]{img/gb_rmpse.png}
 
 As the error rate shows, Gradient Boosting model gives us the most predictive power by far. We were able to achieve test error rate (RMPSE) of 0.13234.
 
