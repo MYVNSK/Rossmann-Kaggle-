@@ -165,12 +165,12 @@ at most d times, since we might have to try up to d values for Xj before finding
 Our benchmark is the average sales of each store. The error rate for benchmark was 0.106209 on validation set and 0.25789 on the test set (when submitted to Kaggle website). This is our baseline model. Our goal is to improve our prediction by outperforming the benchmark by large degree at the end. 
 
 \subsection{Linear Model}
-The error rates of our different linear models are following:
+The error rates of our different linear models on validation and test sets are the following:
 
 \begin{center}
     \begin{tabular}{| l | l | l |}
       \hline
-       & Validation Error & Test Error \\ \hline
+       & Validation & Test \\ \hline
       Linear Regression \\
       (Full Model) & 0.09101 & 0.21036 \\ \hline
       Linear Regression \\
@@ -180,11 +180,6 @@ The error rates of our different linear models are following:
       \hline    
     \end{tabular}
 \end{center}
-
-We also wanted to check which features were actually removed by the feature elimination methods. 
-
-TODO blah blahblahblah features blachblashblash 
-
 
 \subsection{Random Forest}
 The major parater we tune for Random Forest is the depth and number of trees. We used 5 fold cross validation to compute average RMSPE while varying the depth and number of trees. The plot for varying depth is shown below:
@@ -217,11 +212,12 @@ As the error rate shows, Gradient Boosting model gives us the most predictive po
 \section{Discussion}
 To visualize the overall performance of our different models, we organized the resulting error rates into a simple table. 
 
+The error rates of our different models on validation and test sets are the following:
 % TODO: make an overall error rate table
 \begin{center}
     \begin{tabular}{| l | l | l |}
       \hline
-       & Validation Error & Test Error \\ \hline
+       & Validation & Test \\ \hline
       Benchmark & 0.106209 & 0.25789  \\ \hline
       Linear Regression \\
       (Full Model) & 0.09101 & 0.21036 \\ \hline

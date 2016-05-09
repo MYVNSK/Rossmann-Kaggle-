@@ -1,7 +1,7 @@
 # Min Gu (Min) Jo, Wonjohn Choi
 # SID: 21840115, _
 # KAGGLE: Airbnb
-### Pre-processing
+### Section A: Pre-processing
 install.packages("data.table")
 install.packages("corrplot")
 install.packages("lubridate")
@@ -95,7 +95,7 @@ kaggle_test$Open[is.na(kaggle_test$Open)] = 0
 head(train)
 head(kaggle_test)
 
-
+# Section B: EDA
 # Useful Graphs
 #hist(train$Sales, 100) # Sales histogram
 #hist(train$Customers, 100) # Customers histogram
@@ -124,7 +124,7 @@ head(kaggle_test)
 ## -> There are also stores that have no zeros in their sales. These are the exception 
 ## since they are opened also on sundays / holidays. The sales of those stores on sundays are particularly high:
 
-########################### Utility Functions ##############################
+####################Section B: Utility Functions ##############################
 # rmspe
 compute_rmspe <- function(predicted, expected) {
   predicted = predicted[expected != 0]
@@ -138,7 +138,7 @@ output_to_kaggle <- function(predicted) {
   write.csv(data.frame(Id=kaggle_test$Id, Sales=predicted), "pred.csv", row.names=F)
 }
 
-######################### Prepare Cross Validation #############################
+####################Section C: Prepare Cross Validation #############################
 k = 5 #Folds
 set.seed(42)
 # sample from 1 to k, nrow times (the number of observations in the data)
@@ -147,14 +147,14 @@ list <- 1:k
 trainingset <- subset(train, id %in% list[-1])
 validationset <- subset(train, id %in% c(1))
 
-############################### Benchmark ###################################
+#######################Section D: Benchmark ###################################
 # Predicting using the average sales per store
 predict_bench = validationset$Average.Sales
 rmspe_bench = compute_rmspe(predict_bench, validationset$Sales) 
 rmspe_bench # 0.106209
 # kaggle result: 0.25789
 
-############################## Linear Model ##################################
+######################Section E: Linear Model ##################################
 # Fit Sales against all variables
 lm_all = lm(Sales ~ . - Sales - Store - PromoInterval, data = trainingset)
 predict_all = predict(lm_all, newdata = validationset)
@@ -162,7 +162,7 @@ rmspe_all = compute_rmspe(predict_all, validationset$Sales)  # 0.09101
 output_to_kaggle(predict(lm_all, newdata = kaggle_test)) # kaggle result: 0.21036
 
 summary(lm0)
-################## Variable Selection-Backward Elimination #######################
+#############Section F: Variable Selection-Backward Elimination ###################
 # after backward elimination
 lm_backward_elimination <- lm(formula = "Sales~DayOfWeek+Open+Promo+StateHoliday+SchoolHoliday+StoreType+Assortment+Average.Sales+LogCompetitionDistance+day+month+year"
                   , data = trainingset)
@@ -170,7 +170,7 @@ predict_backward_elimination = predict(lm_backward_elimination, newdata = valida
 rmspe_backward_elimination = compute_rmspe(predict_backward_elimination, validationset$Sales)  # 0.09108
 output_to_kaggle(predict(lm_backward_elimination, newdata = kaggle_test)) # kaggle result: 0.20988
 
-################## Variable Selection-AIC #######################
+######################Section G: Variable Selection-AIC ##########################
 lm_aic <- stepAIC(lm_all, direction="both")
 predict_aic = predict(lm_aic, newdata = validationset)
 rmspe_aic = compute_rmspe(predict_aic, validationset$Sales)  # 0.091006
@@ -189,7 +189,7 @@ rmspe7_ridge = compute_rmspe(predict_ridge, validationset$Sales)  # 0.909679
 
 # output_to_kaggle(predict(lm7_reduced, newdata=kaggle_test))
 
-############################### Random Forest ###################################
+########################Section H: Random Forest ###############################
 trainingset$logSales <- log1p(trainingset$Sales)
 # Use H2O's random forest
 # start cluster with all available threads
@@ -272,7 +272,7 @@ write.csv(data.frame(Id=kaggle_test$Id, Sales=predict_rf(kaggle_test)), "pred.cs
 
 
 
-############################### Gradient Boosting ###################################
+#########################Section I: Gradient Boosting ##########################
 require(xgboost)
 
 # Exclude Sales == 0 (Or NaN produced), we care about only opened stores
