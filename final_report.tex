@@ -38,7 +38,7 @@
 Our project attempted to apply linear regression and various machine learning techniques to a real-world problem of predicting drug store sales. Rossmann, Germany's second-largest drug store chain, has provided past sales information of 1115 Rossmann stores located across Germany. We preprocessed, feature-engineered the data, and examined 3 different statistical / machine learning analysis for forecasting sales of each store: multivariate linear regression with various feature selection methods, Random Forest regression, and Gradient Boosting with regression trees. Then, we compared the methods' predictive power by computing Root Mean Square Percentage Error (RMSPE). We found that Gradient Boosting model performed the best with a RMSPE score of 0.13234 on the test data set.
 
 \section{Introduction}
-The objective of this project is to predict 6 weeks of daily sales for 1115 Rossmann stores located across Germany using the data which was provided by Rossmann through Kaggle. The motivation of this project is the following: by reliably predicting daily sales, store managers may decrease operational costs, and create effective staff schedules (ex. by assigning more staffs during busy days) (``Rossmann Store Sales''). Also, we would like to identify which type of techniques be both efficient and effective in a real-world sales prediction task. Before building any regression or machine learning models for the prediction, we attempted to identify which features in the data might be significant to determine daily sales of stores, and investigate any interesting relationships between variables.
+The objective of this project is to predict 6 weeks of daily sales for 1115 Rossmann stores located across Germany using the data which was provided by Rossmann through Kaggle. The motivation of this project is the following: by reliably predicting daily sales, store managers may decrease operational costs, and create effective staff schedules (ex. by assigning more staffs during busy days) (``Rossmann Store Sales''). Also, we would like to identify which type of techniques are both efficient and effective in a real-world sales prediction task. Before building any regression or machine learning models for the prediction, we attempted to identify which features in the data might be significant to determine daily sales of stores, and investigate any interesting relationships between variables.
 
 To start off, we first explored several similar efforts that made for sales prediction task in the past in order to set the basis of our study, and reviewed them to discover how we can improve for our regression task. 
 
@@ -264,8 +264,6 @@ The effects of tuning the step size are visualized in the following graph:
 
 As the error rate shows, Gradient Boosting model gives us the most predictive power by far. We were able to achieve test error rate (RMPSE) of 0.13234.
 
-
-\section{Supplementary Result}
 
 \section{Discussion}
 To visualize the overall performance of our different models, we organized the resulting error rates into a simple table. 
