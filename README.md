@@ -9,5 +9,5 @@ Rossmann is challenging you to predict 6 weeks of daily sales for 1,115 stores l
 ## Goal
 Feature engineer and examine 3 different statistical / machine learning analysis for forecasting
 
-### Please check our final_report.pdf (Reproduction direction is included in the report)
+### Please check our final_report.pdf (The direction for reproducing this project is included in the report)
 
